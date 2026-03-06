@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FreshBin NYC — Bin Cleaning Service | Queens, NY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:     #1A7A4A;
+      --green-dk:  #0F4D2E;
+      --green-lt:  #C8F5DC;
+      --blue:      #0B9ED9;
+      --blue-lt:   #D0F0FF;
+      --dark:      #0A1C11;
+      --off-white: #F4FAF6;
+      --text:      #1A2E20;
+      --muted:     #5A7A64;
+      --card-bg:   #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--off-white);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(10, 28, 17, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 2px;
+      color: #fff;
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--blue); }
+    .nav-links {
+      display: flex; align-items: center; gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 14px; font-weight: 500; letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.7); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--green-lt); }
+    .nav-cta {
+      background: var(--green);
+      color: #fff !important;
+      padding: 10px 24px;
+      border-radius: 100px;
+      font-weight: 600 !important;
+      transition: background 0.2s, transform 0.2s !important;
+    }
+    .nav-cta:hover { background: #23a062 !important; transform: translateY(-1px); }
+
+    /* ── HERO ────────────────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      background: var(--dark);
+      position: relative;
+      display: flex; align-items: center;
+      overflow: hidden;
+      padding: 120px 48px 80px;
+    }
+
+    /* animated background mesh */
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 40%, rgba(11,158,217,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 20% 70%, rgba(26,122,74,0.22) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 40% at 85% 80%, rgba(26,122,74,0.12) 0%, transparent 50%);
+    }
+    /* noise grain overlay */
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* floating water drops */
+    .drop {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(11,158,217,0.6), rgba(11,158,217,0.1));
+      animation: floatDrop linear infinite;
+      z-index: 1;
+    }
+    .drop:nth-child(1) { width:8px; height:8px; left:15%; animation-duration:8s; animation-delay:0s; }
+    .drop:nth-child(2) { width:5px; height:5px; left:25%; animation-duration:11s; animation-delay:2s; }
+    .drop:nth-child(3) { width:10px; height:10px; left:55%; animation-duration:9s; animation-delay:1s; }
+    .drop:nth-child(4) { width:6px; height:6px; left:70%; animation-duration:13s; animation-delay:3s; }
+    .drop:nth-child(5) { width:4px; height:4px; left:85%; animation-duration:7s; animation-delay:0.5s; }
+    .drop:nth-child(6) { width:9px; height:9px; left:40%; animation-duration:10s; animation-delay:4s; }
+    @keyframes floatDrop {
+      0%   { transform: translateY(110vh) scale(0.5); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 680px;
+      animation: heroIn 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(200, 245, 220, 0.1);
+      border: 1px solid rgba(200, 245, 220, 0.25);
+      color: var(--green-lt);
+      padding: 8px 18px; border-radius: 100px;
+      font-size: 13px; font-weight: 500; letter-spacing: 0.5px;
+      margin-bottom: 28px;
+    }
+    .hero-badge .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #4ade80;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(64px, 9vw, 110px);
+      line-height: 0.95;
+      letter-spacing: 2px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: transparent;
+      -webkit-text-stroke: 2px var(--blue);
+    }
+    .hero h1 .green-word { color: var(--green-lt); }
+
+    .hero-sub {
+      font-size: 19px; line-height: 1.6;
+      color: rgba(255,255,255,0.65);
+      max-width: 480px;
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+    .hero-sub strong { color: rgba(255,255,255,0.9); font-weight: 600; }
+
+    .hero-actions {
+      display: flex; align-items: center; gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--green);
+      color: #fff;
+      padding: 16px 32px;
+      border-radius: 100px;
+      font-size: 16px; font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s;
+      box-shadow: 0 8px 32px rgba(26,122,74,0.4);
+    }
+    .btn-primary:hover {
+      background: #23a062;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(26,122,74,0.5);
+    }
+    .btn-primary .arrow { transition: transform 0.2s; }
+    .btn-primary:hover .arrow { transform: translateX(4px); }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: rgba(255,255,255,0.7);
+      font-size: 15px; font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .btn-ghost:hover { color: #fff; }
+
+    .hero-stats {
+      display: flex; gap: 40px;
+      margin-top: 64px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .stat-item { }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 42px; letter-spacing: 1px;
+      color: #fff; line-height: 1;
+    }
+    .stat-num span { color: var(--blue); }
+    .stat-label {
+      font-size: 13px; color: rgba(255,255,255,0.45);
+      margin-top: 4px; font-weight: 400; letter-spacing: 0.3px;
+    }
+
+    /* hero visual side */
+    .hero-visual {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 45%; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .bin-showcase {
+      position: relative;
+      width: 340px; height: 340px;
+      animation: heroIn 1.2s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    /* glowing orb behind bin */
+    .bin-glow {
+      position: absolute; inset: -40px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(11,158,217,0.25) 0%, transparent 70%);
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50%       { transform: scale(1.1); opacity: 1; }
+    }
+    .bin-icon {
+      position: relative; z-index: 2;
+      font-size: 180px; text-align: center; line-height: 340px;
+      filter: drop-shadow(0 20px 60px rgba(11,158,217,0.4));
+    }
+    /* water rings */
+    .ring {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(11,158,217,0.3);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      animation: ringExpand 3s ease-out infinite;
+    }
+    .ring:nth-child(2) { width: 300px; height: 300px; animation-delay: 0s; }
+    .ring:nth-child(3) { width: 420px; height: 420px; animation-delay: 1s; }
+    .ring:nth-child(4) { width: 540px; height: 540px; animation-delay: 2s; }
+    @keyframes ringExpand {
+      0%   { transform: translate(-50%,-50%) scale(0); opacity: 0.8; }
+      100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
+    }
+
+    /* ── TICKER ──────────────────────────────────────────────────────── */
+    .ticker-wrap {
+      background: var(--green);
+      padding: 14px 0;
+      overflow: hidden;
+    }
+    .ticker-track {
+      display: flex; gap: 0;
+      animation: ticker 25s linear infinite;
+      white-space: nowrap;
+    }
+    .ticker-item {
+      display: inline-flex; align-items: center; gap: 16px;
+      padding: 0 32px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 17px; letter-spacing: 2px;
+      color: rgba(255,255,255,0.9);
+    }
+    .ticker-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+    }
+    @keyframes ticker {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── PROBLEM SECTION ─────────────────────────────────────────────── */
+    .problem {
+      background: #fff;
+      padding: 100px 48px;
+    }
+    .section-label {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px; letter-spacing: 3px;
+      color: var(--green);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .problem-text h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(44px, 5vw, 68px);
+      line-height: 1;
+      letter-spacing: 1.5px;
+      color: var(--dark);
+      margin-bottom: 24px;
+    }
+    .problem-text h2 em {
+      font-style: normal; color: var(--green);
+    }
+    .problem-text p {
+      font-size: 17px; line-height: 1.7;
+      color: var(--muted);
+      max-width: 420px;
+    }
+    .fact-cards {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; margin-top: 36px;
+    }
+    .fact-card {
+      background: var(--off-white);
+      border: 1px solid rgba(26,122,74,0.12);
+      border-radius: 16px; padding: 24px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .fact-card:hover { transform: translateY(-3px); border-color: var(--green); }
+    .fact-icon { font-size: 28px; margin-bottom: 10px; }
+    .fact-title {
+      font-weight: 700; font-size: 15px;
+      color: var(--dark); margin-bottom: 4px;
+    }
+    .fact-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    .problem-visual {
+      position: relative;
+    }
+    .before-after {
+      border-radius: 24px; overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.12);
+      position: relative;
+    }
+    .ba-panel {
+      padding: 60px 40px;
+      text-align: center;
+    }
+    .ba-panel.before {
+      background: linear-gradient(135deg, #2d1b00, #4a2800);
+    }
+    .ba-panel.after {
+      background: linear-gradient(135deg, var(--green-dk), var(--green));
+    }
+    .ba-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .ba-panel.before .ba-label { color: rgba(255,180,0,0.7); }
+    .ba-panel.after  .ba-label { color: rgba(200,245,220,0.7); }
+    .ba-emoji { font-size: 72px; line-height: 1; margin-bottom: 16px; }
+    .ba-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 2px;
+    }
+    .ba-panel.before .ba-text { color: #ffb400; }
+    .ba-panel.after  .ba-text { color: #fff; }
+    .ba-divider {
+      background: #fff;
+      padding: 14px 20px;
+      text-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px; letter-spacing: 3px;
+      color: var(--green);
+    }
+    /* nyc containerization callout */
+    .nyc-callout {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #0B9ED9, #0876A8);
+      border-radius: 16px; padding: 20px 24px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .nyc-callout-icon { font-size: 28px; flex-shrink: 0; }
+    .nyc-callout-text { font-size: 14px; color: #fff; line-height: 1.5; }
+    .nyc-callout-text strong { display: block; font-size: 15px; margin-bottom: 2px; }
+
+    /* ── HOW IT WORKS ────────────────────────────────────────────────── */
+    .how {
+      background: var(--dark);
+      padding: 100px 48px;
+      position: relative; overflow: hidden;
+    }
+    .how::before {
+      content: '';
+      position: absolute; top: -200px; right: -200px;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(26,122,74,0.15) 0%, transparent 70%);
+    }
+    .how-header {
+      max-width: 1200px; margin: 0 auto 64px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+    }
+    .how-header h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(44px, 5vw, 72px);
+      letter-spacing: 2px; line-height: 1;
+      color: #fff;
+    }
+    .how-header h2 span { color: var(--blue); }
+    .how-header p {
+      font-size: 16px; color: rgba(255,255,255,0.45);
+      max-width: 300px; text-align: right; line-height: 1.6;
+    }
+    .steps {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 24px; overflow: hidden;
+    }
+    .step {
+      background: rgba(255,255,255,0.03);
+      padding: 48px 40px;
+      position: relative;
+      transition: background 0.3s;
+    }
+    .step:hover { background: rgba(255,255,255,0.06); }
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 80px; line-height: 1;
+      color: rgba(255,255,255,0.05);
+      position: absolute; top: 20px; right: 30px;
+      letter-spacing: -2px;
+    }
+    .step-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: rgba(26,122,74,0.2);
+      border: 1px solid rgba(26,122,74,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; margin-bottom: 28px;
+    }
+    .step h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 1px;
+      color: #fff; margin-bottom: 12px;
+    }
+    .step p {
+      font-size: 15px; color: rgba(255,255,255,0.5);
+      line-height: 1.7;
+    }
+    .step-connector {
+      position: absolute; top: 70px; right: -1px;
+      color: var(--green); font-size: 24px;
+      opacity: 0.5;
+    }
+
+    /* ── PRICING ─────────────────────────────────────────────────────── */
+    .pricing {
+      background: var(--off-white);
+      padding: 100px 48px;
+    }
+    .pricing-header {
+      text-align: center;
+      max-width: 600px; margin: 0 auto 64px;
+    }
+    .pricing-header h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(44px, 5vw, 72px);
+      letter-spacing: 2px; line-height: 1;
+      color: var(--dark); margin-bottom: 16px;
+    }
+    .pricing-header h2 span { color: var(--green); }
+    .pricing-header p { font-size: 16px; color: var(--muted); line-height: 1.6; }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1000px; margin: 0 auto;
+      align-items: start;
+    }
+    .price-card {
+      background: #fff;
+      border: 1.5px solid #e8f0ea;
+      border-radius: 24px;
+      padding: 36px 32px;
+      position: relative;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .price-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(26,122,74,0.12);
+    }
+    .price-card.featured {
+      border-color: var(--green);
+      background: var(--dark);
+      transform: scale(1.04);
+      box-shadow: 0 24px 80px rgba(26,122,74,0.3);
+    }
+    .price-card.featured:hover {
+      transform: scale(1.04) translateY(-6px);
+    }
+    .price-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--green);
+      color: #fff; font-size: 11px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      padding: 5px 16px; border-radius: 100px;
+      white-space: nowrap;
+    }
+    .price-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 16px;
+    }
+    .price-card.featured .price-label { color: rgba(255,255,255,0.45); }
+    .price-amount {
+      display: flex; align-items: flex-end; gap: 4px;
+      margin-bottom: 8px;
+    }
+    .price-dollar {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 24px; font-weight: 600;
+      color: var(--muted); line-height: 1.6;
+    }
+    .price-card.featured .price-dollar { color: rgba(255,255,255,0.5); }
+    .price-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 72px; letter-spacing: -1px; line-height: 1;
+      color: var(--dark);
+    }
+    .price-card.featured .price-num { color: #fff; }
+    .price-period {
+      font-size: 15px; color: var(--muted);
+      margin-bottom: 12px; line-height: 1.8;
+    }
+    .price-card.featured .price-period { color: rgba(255,255,255,0.5); }
+    .price-desc {
+      font-size: 14px; color: var(--muted);
+      line-height: 1.6; margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .price-card.featured .price-desc {
+      color: rgba(255,255,255,0.5);
+      border-bottom-color: rgba(255,255,255,0.08);
+    }
+    .price-features { list-style: none; margin-bottom: 32px; }
+    .price-features li {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; color: var(--text);
+      padding: 7px 0;
+    }
+    .price-card.featured .price-features li { color: rgba(255,255,255,0.8); }
+    .price-features li::before {
+      content: '✓';
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(26,122,74,0.12);
+      color: var(--green);
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .price-card.featured .price-features li::before {
+      background: rgba(200,245,220,0.15);
+      color: var(--green-lt);
+    }
+    .price-btn {
+      display: block; width: 100%;
+      padding: 15px;
+      border-radius: 100px;
+      text-align: center;
+      font-size: 15px; font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .price-btn-outline {
+      border: 1.5px solid #d4e8da;
+      color: var(--green);
+      background: transparent;
+    }
+    .price-btn-outline:hover {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+    .price-btn-solid {
+      background: var(--green);
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(26,122,74,0.35);
+    }
+    .price-btn-solid:hover {
+      background: #23a062;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 32px rgba(26,122,74,0.45);
+    }
+    .pricing-note {
+      text-align: center; margin-top: 32px;
+      font-size: 14px; color: var(--muted);
+    }
+
+    /* ── NEIGHBORHOODS ───────────────────────────────────────────────── */
+    .areas {
+      background: #fff;
+      padding: 100px 48px;
+    }
+    .areas-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+    .areas-text h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(44px, 5vw, 68px);
+      letter-spacing: 1.5px; line-height: 1;
+      color: var(--dark); margin-bottom: 20px;
+    }
+    .areas-text h2 span { color: var(--green); }
+    .areas-text p {
+      font-size: 17px; color: var(--muted);
+      line-height: 1.7; margin-bottom: 36px;
+    }
+    .zip-list {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .zip-chip {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px;
+      background: var(--off-white);
+      border: 1px solid rgba(26,122,74,0.12);
+      border-radius: 12px;
+    }
+    .zip-chip.launch {
+      background: var(--green);
+      border-color: var(--green);
+    }
+    .zip-code {
+      font-family: 'DM Mono', monospace;
+      font-size: 15px; font-weight: 500;
+      color: var(--dark);
+    }
+    .zip-chip.launch .zip-code { color: #fff; }
+    .zip-name {
+      font-size: 13px; color: var(--muted); line-height: 1.3;
+    }
+    .zip-chip.launch .zip-name { color: rgba(255,255,255,0.75); }
+    .zip-status {
+      margin-left: auto;
+      font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .zip-chip.launch .zip-status { color: var(--green-lt); }
+    .zip-status-soon { color: var(--muted); }
+
+    .areas-map {
+      background: var(--dark);
+      border-radius: 24px;
+      padding: 48px;
+      position: relative; overflow: hidden;
+      min-height: 380px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .areas-map::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 40% 60%, rgba(26,122,74,0.3) 0%, transparent 50%),
+        radial-gradient(circle at 70% 30%, rgba(11,158,217,0.2) 0%, transparent 40%);
+    }
+    .map-borough {
+      position: relative; z-index: 1;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px; letter-spacing: 3px;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 16px;
+    }
+    .map-title {
+      position: relative; z-index: 1;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px; letter-spacing: 2px; line-height: 1;
+      color: #fff; margin-bottom: 8px;
+    }
+    .map-title span { color: var(--green-lt); }
+    .map-sub {
+      position: relative; z-index: 1;
+      font-size: 15px; color: rgba(255,255,255,0.45);
+      line-height: 1.6; margin-bottom: 32px;
+    }
+    .map-pin-list {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .map-pin {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px;
+    }
+    .pin-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--green); flex-shrink: 0;
+      box-shadow: 0 0 8px rgba(26,122,74,0.6);
+    }
+    .pin-dot.soon {
+      background: rgba(255,255,255,0.2);
+      box-shadow: none;
+    }
+    .map-pin span { color: rgba(255,255,255,0.6); }
+    .map-pin strong { color: #fff; }
+
+    /* ── SMS PREVIEW ─────────────────────────────────────────────────── */
+    .sms-section {
+      background: var(--off-white);
+      padding: 100px 48px;
+    }
+    .sms-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+    .sms-text h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 4.5vw, 64px);
+      letter-spacing: 1.5px; line-height: 1;
+      color: var(--dark); margin-bottom: 20px;
+    }
+    .sms-text h2 span { color: var(--green); }
+    .sms-text p {
+      font-size: 17px; color: var(--muted);
+      line-height: 1.7; margin-bottom: 28px;
+    }
+    .sms-steps { display: flex; flex-direction: column; gap: 16px; }
+    .sms-step {
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .sms-step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--green);
+      color: #fff; font-weight: 700; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sms-step-text strong { display: block; font-size: 14px; color: var(--dark); margin-bottom: 2px; }
+    .sms-step-text span { font-size: 13px; color: var(--muted); }
+
+    .phone-mockup {
+      max-width: 300px; margin: 0 auto;
+      background: var(--dark);
+      border-radius: 44px;
+      padding: 16px;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+    .phone-screen {
+      background: #1C1C1E;
+      border-radius: 32px;
+      overflow: hidden;
+    }
+    .phone-status {
+      background: #1C1C1E;
+      padding: 12px 20px 8px;
+      display: flex; justify-content: space-between;
+      font-size: 12px; font-weight: 600;
+      color: #fff;
+    }
+    .phone-header {
+      background: #2C2C2E;
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .phone-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .phone-contact { }
+    .phone-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .phone-status-text { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .phone-msgs {
+      padding: 16px 16px 8px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .msg {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 13px; line-height: 1.5;
+    }
+    .msg-in {
+      background: #2C2C2E;
+      color: rgba(255,255,255,0.85);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      animation: msgSlideIn 0.4s ease both;
+    }
+    .msg-in:nth-child(2) { animation-delay: 0.3s; }
+    .msg-in:nth-child(3) { animation-delay: 0.6s; }
+    .msg-in:nth-child(4) { animation-delay: 0.9s; }
+    @keyframes msgSlideIn {
+      from { opacity: 0; transform: translateX(-12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .msg-time {
+      font-size: 10px; color: rgba(255,255,255,0.25);
+      margin-top: 2px; padding-left: 14px;
+    }
+
+    /* ── TRUST / SOCIAL PROOF ────────────────────────────────────────── */
+    .trust {
+      background: var(--dark);
+      padding: 80px 48px;
+    }
+    .trust-inner {
+      max-width: 1200px; margin: 0 auto;
+      text-align: center;
+    }
+    .trust h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px; letter-spacing: 2px;
+      color: #fff; margin-bottom: 12px;
+    }
+    .trust h2 span { color: var(--green-lt); }
+    .trust-sub {
+      font-size: 16px; color: rgba(255,255,255,0.45);
+      margin-bottom: 48px;
+    }
+    .trust-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .trust-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px; padding: 32px;
+      text-align: left;
+      transition: background 0.2s;
+    }
+    .trust-card:hover { background: rgba(255,255,255,0.07); }
+    .trust-stars { color: #fbbf24; font-size: 16px; margin-bottom: 16px; }
+    .trust-quote {
+      font-size: 15px; color: rgba(255,255,255,0.7);
+      line-height: 1.7; margin-bottom: 20px;
+      font-style: italic;
+    }
+    .trust-author { display: flex; align-items: center; gap: 12px; }
+    .trust-initials {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--green);
+      color: #fff; font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .trust-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .trust-loc { font-size: 12px; color: rgba(255,255,255,0.35); }
+
+    /* ── FINAL CTA ───────────────────────────────────────────────────── */
+    .final-cta {
+      background: var(--green);
+      padding: 100px 48px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .final-cta::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 60% at 80% 50%, rgba(0,0,0,0.15) 0%, transparent 50%);
+    }
+    .final-cta-content { position: relative; z-index: 1; }
+    .final-cta h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 7vw, 96px);
+      letter-spacing: 2px; line-height: 0.95;
+      color: #fff; margin-bottom: 24px;
+    }
+    .final-cta p {
+      font-size: 18px; color: rgba(255,255,255,0.75);
+      max-width: 480px; margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+    .final-cta .btn-white {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #fff;
+      color: var(--green);
+      padding: 18px 40px;
+      border-radius: 100px;
+      font-size: 17px; font-weight: 700;
+      text-decoration: none;
+      transition: all 0.25s;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+    .final-cta .btn-white:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .final-guarantee {
+      margin-top: 24px;
+      font-size: 14px; color: rgba(255,255,255,0.55);
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────────────── */
+    footer {
+      background: #060e09;
+      padding: 60px 48px 40px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .footer-top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      max-width: 1200px; margin: 0 auto 48px;
+    }
+    .footer-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px; letter-spacing: 2px;
+      color: #fff;
+    }
+    .footer-brand span { color: var(--blue); }
+    .footer-tagline {
+      font-size: 13px; color: rgba(255,255,255,0.3);
+      margin-top: 6px;
+    }
+    .footer-links {
+      display: flex; gap: 60px;
+    }
+    .footer-col h4 {
+      font-size: 12px; letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 20px;
+      font-family: 'DM Mono', monospace;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a {
+      font-size: 14px; color: rgba(255,255,255,0.5);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom {
+      max-width: 1200px; margin: 0 auto;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-copy { font-size: 13px; color: rgba(255,255,255,0.2); }
+    .footer-legal { display: flex; gap: 24px; }
+    .footer-legal a {
+      font-size: 13px; color: rgba(255,255,255,0.2);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .footer-legal a:hover { color: rgba(255,255,255,0.5); }
+
+    /* ── SCROLL ANIMATIONS ───────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      .hero { padding: 120px 24px 80px; }
+      .hero-visual { display: none; }
+      .problem-grid, .areas-inner, .sms-inner { grid-template-columns: 1fr; gap: 48px; }
+      .fact-cards { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+      .price-card.featured { transform: none; }
+      .trust-grid { grid-template-columns: 1fr; }
+      .how-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .how-header p { text-align: left; }
+      .problem, .how, .pricing, .areas, .sms-section, .trust, .final-cta, footer { padding: 72px 24px; }
+      .footer-top { flex-direction: column; gap: 40px; }
+      .footer-links { flex-direction: column; gap: 32px; }
+      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+      .hero-stats { gap: 24px; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">Fresh<span>Bin</span> NYC</a>
+    <ul class="nav-links">
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#areas">Service Area</a></li>
+      <li><a href="#booking" class="nav-cta">Book Now</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="drop"></div>
+    <div class="drop"></div>
+    <div class="drop"></div>
+    <div class="drop"></div>
+    <div class="drop"></div>
+    <div class="drop"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <div class="dot"></div>
+        Now Serving Springfield Gardens &amp; Queens
+      </div>
+
+      <h1>
+        YOUR BINS<br>
+        <em>DESERVE</em><br>
+        <span class="green-word">FRESH</span>
+      </h1>
+
+      <p class="hero-sub">
+        Professional bin cleaning &amp; disinfection for Queens homeowners.
+        <strong>We come to you.</strong> No mess, no odor, no bacteria.
+        Starting at just $25.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#booking" class="btn-primary">
+          Book Your First Clean
+          <span class="arrow">→</span>
+        </a>
+        <a href="#how" class="btn-ghost">
+          ↓ See how it works
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">30<span>s</span></div>
+          <div class="stat-label">Per bin average clean time</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">$<span>18</span></div>
+          <div class="stat-label">Monthly subscription</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">100<span>%</span></div>
+          <div class="stat-label">Eco-friendly disinfectant</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="bin-showcase">
+        <div class="bin-glow"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="bin-icon">🗑️</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <div class="ticker-item"><span class="ticker-dot"></span>ECO-FRIENDLY DISINFECTANT</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>QUEENS OWNED &amp; OPERATED</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>TEXT UPDATES EVERY VISIT</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>NO LONG-TERM CONTRACTS</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>CANCEL ANYTIME</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>SAME-DAY AS TRASH PICKUP</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>ECO-FRIENDLY DISINFECTANT</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>QUEENS OWNED &amp; OPERATED</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>TEXT UPDATES EVERY VISIT</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>NO LONG-TERM CONTRACTS</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>CANCEL ANYTIME</div>
+      <div class="ticker-item"><span class="ticker-dot"></span>SAME-DAY AS TRASH PICKUP</div>
+    </div>
+  </div>
+
+  <!-- PROBLEM -->
+  <section class="problem">
+    <div class="problem-grid">
+      <div class="problem-text reveal">
+        <span class="section-label">// The problem</span>
+        <h2>YOUR BIN IS A<br><em>BACTERIA FACTORY</em></h2>
+        <p>Most Queens homeowners never clean their trash bins. After a few weeks, the inside becomes a breeding ground for bacteria, mold, and the kind of odor that hits you before you even open the lid. We fix that — every single month.</p>
+        <div class="fact-cards">
+          <div class="fact-card reveal reveal-delay-1">
+            <div class="fact-icon">🦟</div>
+            <div class="fact-title">Maggots in Summer</div>
+            <div class="fact-desc">Warm months turn uncleaned bins into pest magnets fast</div>
+          </div>
+          <div class="fact-card reveal reveal-delay-2">
+            <div class="fact-icon">🦠</div>
+            <div class="fact-title">Bacteria Buildup</div>
+            <div class="fact-desc">Studies show household bins carry millions of bacteria</div>
+          </div>
+          <div class="fact-card reveal reveal-delay-1">
+            <div class="fact-icon">📋</div>
+            <div class="fact-title">NYC Now Requires Bins</div>
+            <div class="fact-desc">DSNY mandated secure-lid bins for all homes since Nov 2024</div>
+          </div>
+          <div class="fact-card reveal reveal-delay-2">
+            <div class="fact-icon">💸</div>
+            <div class="fact-title">$18 Fixes All of It</div>
+            <div class="fact-desc">Less than one coffee a week. We handle everything.</div>
+          </div>
+        </div>
+      </div>
+      <div class="problem-visual reveal">
+        <div class="before-after">
+          <div class="ba-panel before">
+            <div class="ba-label">Before FreshBin</div>
+            <div class="ba-emoji">🤢</div>
+            <div class="ba-text">SMELLS. BACTERIA. PESTS.</div>
+          </div>
+          <div class="ba-divider">↕ FRESHBIN DOES THIS ↕</div>
+          <div class="ba-panel after">
+            <div class="ba-label">After FreshBin</div>
+            <div class="ba-emoji">✨</div>
+            <div class="ba-text">CLEAN. FRESH. DISINFECTED.</div>
+          </div>
+        </div>
+        <div class="nyc-callout reveal">
+          <div class="nyc-callout-icon">🏙️</div>
+          <div class="nyc-callout-text">
+            <strong>NYC's New Bin Rule</strong>
+            As of November 2024, all Queens homeowners are required to use secure-lid bins for trash. That's your bin — and we'll keep it spotless.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how">
+    <div class="how-header reveal">
+      <div>
+        <span class="section-label" style="color:rgba(200,245,220,0.6)">//&nbsp;How it works</span>
+        <h2>THREE STEPS.<br><span>ZERO EFFORT</span><br>FROM YOU.</h2>
+      </div>
+      <p>We time our visits the day after your DSNY trash pickup. Bins are empty, we clean them, done.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-icon">📱</div>
+        <h3>Book Online in 60 Seconds</h3>
+        <p>Pick your plan on freshbin.nyc, enter your address, pay securely via Stripe. That's it — you're on the route.</p>
+        <div class="step-connector">→</div>
+      </div>
+      <div class="step reveal reveal-delay-1">
+        <div class="step-num">02</div>
+        <div class="step-icon">💬</div>
+        <h3>We Text Before We Arrive</h3>
+        <p>You'll get a heads-up 3 days before, a confirmation the night before, and a photo when we're done. No surprises.</p>
+        <div class="step-connector">→</div>
+      </div>
+      <div class="step reveal reveal-delay-2">
+        <div class="step-num">03</div>
+        <div class="step-icon">✨</div>
+        <h3>Fresh Bin. Every Month.</h3>
+        <p>We pressure wash inside and out, apply eco-friendly disinfectant, and return your bin to the curb. You don't even need to be home.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="pricing-header reveal">
+      <span class="section-label">// Pricing</span>
+      <h2>CLEAN BINS.<br><span>FAIR PRICES.</span></h2>
+      <p>No hidden fees. No long-term contracts. Cancel or pause anytime.</p>
+    </div>
+    <div class="pricing-grid">
+
+      <div class="price-card reveal">
+        <div class="price-label">One-Time</div>
+        <div class="price-amount">
+          <span class="price-dollar">$</span>
+          <span class="price-num">25</span>
+        </div>
+        <div class="price-period">per clean</div>
+        <div class="price-desc">Try us once, no commitment. Perfect for a first clean or a one-off refresh.</div>
+        <ul class="price-features">
+          <li>Full interior pressure wash</li>
+          <li>Exterior clean &amp; rinse</li>
+          <li>Eco-friendly disinfectant</li>
+          <li>Before/after photo via text</li>
+        </ul>
+        <a href="#booking" class="price-btn price-btn-outline">Book One Clean</a>
+      </div>
+
+      <div class="price-card featured reveal reveal-delay-1">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-label">Monthly</div>
+        <div class="price-amount">
+          <span class="price-dollar">$</span>
+          <span class="price-num">18</span>
+        </div>
+        <div class="price-period">per month</div>
+        <div class="price-desc">One clean per month, every month. Lock it in and never think about it again.</div>
+        <ul class="price-features">
+          <li>Everything in One-Time</li>
+          <li>Scheduled monthly service</li>
+          <li>SMS reminders &amp; updates</li>
+          <li>Priority route scheduling</li>
+          <li>Pause anytime — no charge</li>
+        </ul>
+        <a href="#booking" class="price-btn price-btn-solid">Start Monthly Plan</a>
+      </div>
+
+      <div class="price-card reveal reveal-delay-2">
+        <div class="price-label">Annual</div>
+        <div class="price-amount">
+          <span class="price-dollar">$</span>
+          <span class="price-num">170</span>
+        </div>
+        <div class="price-period">per year <span style="color:var(--green);font-size:12px;font-weight:700">Save $46</span></div>
+        <div class="price-desc">Pay once, forget it for 12 months. Best value for committed homeowners.</div>
+        <ul class="price-features">
+          <li>Everything in Monthly</li>
+          <li>12 cleans for price of 9.4</li>
+          <li>FreshBin Member badge</li>
+          <li>First priority on route</li>
+        </ul>
+        <a href="#booking" class="price-btn price-btn-outline">Go Annual</a>
+      </div>
+
+    </div>
+    <p class="pricing-note reveal">🏢 Running an HOA or managing multiple properties? <a href="#contact" style="color:var(--green);font-weight:600">Contact us for group rates →</a></p>
+  </section>
+
+  <!-- SERVICE AREAS -->
+  <section class="areas" id="areas">
+    <div class="areas-inner">
+      <div class="areas-text reveal">
+        <span class="section-label">// Service Area</span>
+        <h2>SERVING<br><span>QUEENS</span><br>FIRST.</h2>
+        <p>We're starting right here in southeast Queens — because dense routes mean faster service, lower costs, and more neighbors you can refer. Expanding soon.</p>
+        <div class="zip-list">
+          <div class="zip-chip launch">
+            <div>
+              <div class="zip-code">11413</div>
+              <div class="zip-name">Springfield Gardens</div>
+            </div>
+            <div class="zip-status">● Live Now</div>
+          </div>
+          <div class="zip-chip">
+            <div>
+              <div class="zip-code">11411</div>
+              <div class="zip-name">Cambria Heights</div>
+            </div>
+            <div class="zip-status zip-status-soon">Coming Soon</div>
+          </div>
+          <div class="zip-chip">
+            <div>
+              <div class="zip-code">11434</div>
+              <div class="zip-name">Jamaica</div>
+            </div>
+            <div class="zip-status zip-status-soon">Coming Soon</div>
+          </div>
+          <div class="zip-chip">
+            <div>
+              <div class="zip-code">11412</div>
+              <div class="zip-name">St. Albans</div>
+            </div>
+            <div class="zip-status zip-status-soon">Coming Soon</div>
+          </div>
+        </div>
+      </div>
+      <div class="areas-map reveal">
+        <div class="map-borough">Queens County, New York City</div>
+        <div class="map-title">South<span>east</span><br>Queens</div>
+        <div class="map-sub">Dense suburban neighborhoods, homeowner-proud communities, real curbside bins — this is our home turf.</div>
+        <div class="map-pin-list">
+          <div class="map-pin"><div class="pin-dot"></div><div><strong>11413</strong> <span>— Springfield Gardens · ACTIVE</span></div></div>
+          <div class="map-pin"><div class="pin-dot soon"></div><div><strong>11411</strong> <span>— Cambria Heights · Q2 2025</span></div></div>
+          <div class="map-pin"><div class="pin-dot soon"></div><div><strong>11434</strong> <span>— Jamaica · Q2 2025</span></div></div>
+          <div class="map-pin"><div class="pin-dot soon"></div><div><strong>11412</strong> <span>— St. Albans · Q3 2025</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SMS SECTION -->
+  <section class="sms-section">
+    <div class="sms-inner">
+      <div class="sms-text reveal">
+        <span class="section-label">// Stay in the loop</span>
+        <h2>WE TEXT YOU<br><span>EVERY STEP</span><br>OF THE WAY.</h2>
+        <p>No wondering if we showed up. No mystery. We send you updates at every stage — because your time matters.</p>
+        <div class="sms-steps">
+          <div class="sms-step">
+            <div class="sms-step-num">1</div>
+            <div class="sms-step-text">
+              <strong>3 days before service</strong>
+              <span>Heads-up reminder with your service window</span>
+            </div>
+          </div>
+          <div class="sms-step">
+            <div class="sms-step-num">2</div>
+            <div class="sms-step-text">
+              <strong>Night before</strong>
+              <span>Confirmation text — no need to be home</span>
+            </div>
+          </div>
+          <div class="sms-step">
+            <div class="sms-step-num">3</div>
+            <div class="sms-step-text">
+              <strong>After your clean</strong>
+              <span>Before/after photo sent straight to your phone</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-1">
+        <div class="phone-mockup">
+          <div class="phone-screen">
+            <div class="phone-status">
+              <span>9:41</span>
+              <span>●●● 100%</span>
+            </div>
+            <div class="phone-header">
+              <div class="phone-avatar">🗑️</div>
+              <div class="phone-contact">
+                <div class="phone-name">FreshBin NYC</div>
+                <div class="phone-status-text">Bin Cleaning Service</div>
+              </div>
+            </div>
+            <div class="phone-msgs">
+              <div class="msg msg-in">Hey Marcus! 🗑️ FreshBin here — we're coming Saturday between 9–11am. Make sure your bin is at the curb!</div>
+              <div class="msg-time">Fri 8:12 PM</div>
+              <div class="msg msg-in">Reminder: we're cleaning your bin tomorrow morning. No need to be home — we'll handle everything! 🌿</div>
+              <div class="msg-time">Sat 7:45 AM</div>
+              <div class="msg msg-in">✅ Done! Your bin is clean and disinfected. See you next month! Know a neighbor who'd want this? You both get a free month 👋</div>
+              <div class="msg-time">Sat 10:23 AM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST -->
+  <section class="trust">
+    <div class="trust-inner">
+      <h2>QUEENS <span>HOMEOWNERS</span> LOVE IT</h2>
+      <p class="trust-sub">Real feedback from real neighbors in your area</p>
+      <div class="trust-grid">
+        <div class="trust-card reveal">
+          <div class="trust-stars">★★★★★</div>
+          <div class="trust-quote">"I never thought I'd pay someone to clean a trash bin — then I smelled mine in July. FreshBin solved a problem I didn't know how to deal with. Worth every penny."</div>
+          <div class="trust-author">
+            <div class="trust-initials">D.W.</div>
+            <div>
+              <div class="trust-name">Denise W.</div>
+              <div class="trust-loc">Springfield Gardens, 11413</div>
+            </div>
+          </div>
+        </div>
+        <div class="trust-card reveal reveal-delay-1">
+          <div class="trust-stars">★★★★★</div>
+          <div class="trust-quote">"The text updates are what got me. They told me exactly when they were coming, sent a photo after, and the bin looked brand new. That's a real service."</div>
+          <div class="trust-author">
+            <div class="trust-initials">R.T.</div>
+            <div>
+              <div class="trust-name">Robert T.</div>
+              <div class="trust-loc">Springfield Gardens, 11413</div>
+            </div>
+          </div>
+        </div>
+        <div class="trust-card reveal reveal-delay-2">
+          <div class="trust-stars">★★★★★</div>
+          <div class="trust-quote">"Three of my neighbors signed up after seeing my bin. Our whole block is on FreshBin now. It's become a community thing. Love supporting a Queens-based business."</div>
+          <div class="trust-author">
+            <div class="trust-initials">M.J.</div>
+            <div>
+              <div class="trust-name">Michelle J.</div>
+              <div class="trust-loc">Springfield Gardens, 11413</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta" id="booking">
+    <div class="final-cta-content">
+      <h2>YOUR BLOCK<br>DESERVES<br>FRESH.</h2>
+      <p>First clean is just $25. Subscribe monthly for $18. Cancel anytime. No excuses left.</p>
+      <a href="#" class="btn-white">
+        Book Your First Clean →
+      </a>
+      <p class="final-guarantee">✓ No contracts &nbsp;&nbsp; ✓ Cancel anytime &nbsp;&nbsp; ✓ Text updates every visit</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Fresh<span>Bin</span> NYC</div>
+        <div class="footer-tagline">Queens' bin cleaning service. Est. 2025.</div>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Service</h4>
+          <ul>
+            <li><a href="#how">How It Works</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#areas">Service Area</a></li>
+            <li><a href="#booking">Book Now</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Business</h4>
+          <ul>
+            <li><a href="#">HOA Rates</a></li>
+            <li><a href="#">Property Managers</a></li>
+            <li><a href="#">Refer a Neighbor</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="mailto:hello@freshbin.nyc">hello@freshbin.nyc</a></li>
+            <li><a href="#">Queens, NY</a></li>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 FreshBin NYC. All rights reserved.</div>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(el => observer.observe(el));
+
+    // Nav scroll effect
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      nav.style.borderBottomColor = window.scrollY > 40
+        ? 'rgba(255,255,255,0.1)'
+        : 'rgba(255,255,255,0.06)';
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
