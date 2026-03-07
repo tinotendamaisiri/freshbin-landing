@@ -2020,10 +2020,6 @@
       </div>
 
       <!-- Price display -->
-      <div id="price-display" style="background:rgba(0,200,150,0.1); border:1px solid rgba(0,200,150,0.25); border-radius:12px; padding:14px 18px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="color:rgba(255,255,255,0.6); font-size:13px;">Estimated total</span>
-        <span id="price-total" style="color:#00C896; font-size:22px; font-weight:800;">$25.00</span>
-      </div>
 
       <!-- Form -->
       <div style="display:flex; flex-direction:column; gap:16px;">
@@ -2081,11 +2077,21 @@
         <!-- Number of bins -->
         <div>
           <label style="display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px;">Number of Bins *</label>
-          <div style="display:flex; gap:8px;">
-            <button onclick="selectBins(1)" id="bins-1" style="flex:1; padding:10px; border:1px solid rgba(0,200,150,0.6); border-radius:10px; background:rgba(0,200,150,0.1); color:#00C896; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;">1</button>
-            <button onclick="selectBins(2)" id="bins-2" style="flex:1; padding:10px; border:1px solid rgba(255,255,255,0.12); border-radius:10px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;">2</button>
-            <button onclick="selectBins(3)" id="bins-3" style="flex:1; padding:10px; border:1px solid rgba(255,255,255,0.12); border-radius:10px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;">3</button>
-            <button onclick="selectBins(4)" id="bins-4" style="flex:1; padding:10px; border:1px solid rgba(255,255,255,0.12); border-radius:10px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;">4+</button>
+          <div style="display:flex; gap:8px;" id="bins-selector">
+            <button type="button" onclick="selectBins(1)" id="bins-1" style="flex:1; padding:10px; border:1px solid rgba(0,200,150,0.6); border-radius:10px; background:rgba(0,200,150,0.1); color:#00C896; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;">1</button>
+            <button type="button" onclick="selectBins(2)" id="bins-2" style="flex:1; padding:10px; border:1px solid rgba(255,255,255,0.12); border-radius:10px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;">2</button>
+            <button type="button" onclick="selectBins(3)" id="bins-3" style="flex:1; padding:10px; border:1px solid rgba(255,255,255,0.12); border-radius:10px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;">3</button>
+            <button type="button" onclick="selectBinsPlus()" id="bins-4" style="flex:1; padding:10px; border:1px solid rgba(255,255,255,0.12); border-radius:10px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;">4+</button>
+          </div>
+          <div id="bins-custom" style="display:none; margin-top:10px; background:rgba(0,200,150,0.08); border:1px solid rgba(0,200,150,0.3); border-radius:10px; padding:12px 14px;">
+            <label style="font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; display:block; margin-bottom:8px;">How many bins?</label>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <button type="button" onclick="adjustCustomBins(-1)" style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#ffffff; font-size:20px; cursor:pointer; font-family:'DM Sans',sans-serif; display:flex; align-items:center; justify-content:center;">−</button>
+              <input id="bins-custom-input" type="number" min="4" max="20" value="4" oninput="setCustomBins(this.value)" style="width:60px; text-align:center; padding:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#ffffff; font-size:18px; font-weight:800; font-family:'DM Sans',sans-serif; outline:none;" />
+              <button type="button" onclick="adjustCustomBins(1)" style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#ffffff; font-size:20px; cursor:pointer; font-family:'DM Sans',sans-serif; display:flex; align-items:center; justify-content:center;">+</button>
+              <span style="font-size:12px; color:rgba(255,255,255,0.4);">bins selected</span>
+              <button type="button" onclick="resetBinsToButtons()" style="margin-left:auto; font-size:11px; color:rgba(255,255,255,0.35); background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; text-decoration:underline;">back</button>
+            </div>
           </div>
         </div>
 
@@ -2126,21 +2132,25 @@
             <option value="neighbor">Neighbor / Word of mouth</option>
             <option value="instagram">Instagram</option>
             <option value="facebook">Facebook</option>
-            <option value="flyer">Flyer / Door hanger</option>
+            <option value="physical">Physical outreach / Flyer / Door hanger</option>
             <option value="other">Other</option>
           </select>
         </div>
 
-        <!-- Referral code -->
-        <div>
-          <label style="display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">Referral Code <span style="color:rgba(255,255,255,0.25); text-transform:none; letter-spacing:0;">(optional)</span></label>
-          <input id="f-referral" type="text" placeholder="e.g. MARCUS10" style="width:100%; padding:12px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#ffffff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none;" />
-        </div>
 
         <!-- Notes -->
         <div>
           <label style="display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">Special Notes <span style="color:rgba(255,255,255,0.25); text-transform:none; letter-spacing:0;">(gate code, dog, bin location)</span></label>
           <textarea id="f-notes" rows="2" placeholder="e.g. Gate code is 1234, bins are on the left side of house" style="width:100%; padding:12px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#ffffff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; resize:none;"></textarea>
+        </div>
+
+        <!-- Price summary -->
+        <div style="background:rgba(0,200,150,0.08); border:1px solid rgba(0,200,150,0.25); border-radius:12px; padding:16px 18px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:4px;">Estimated Total</div>
+            <div style="font-size:12px; color:rgba(255,255,255,0.4);" id="price-breakdown"></div>
+          </div>
+          <div id="price-total" style="color:#00C896; font-size:28px; font-weight:800;">$25.00</div>
         </div>
 
         <!-- Submit -->
@@ -2182,7 +2192,11 @@
     var extra = selectedBins > 1 ? (selectedBins - 1) * 10 : 0;
     var total = base + extra;
     var suffix = selectedPlan === 'monthly' ? '/mo' : selectedPlan === 'annual' ? '/yr' : '';
+    var planLabel = selectedPlan === 'onetime' ? 'One-time' : selectedPlan === 'monthly' ? 'Monthly' : 'Annual';
     document.getElementById('price-total').textContent = '$' + total.toFixed(2) + suffix;
+    var breakdown = planLabel + ': $' + base + ' (1st bin)';
+    if (selectedBins > 1) breakdown += ' + $' + extra + ' (' + (selectedBins - 1) + ' extra bin' + (selectedBins > 2 ? 's' : '') + ')';
+    document.getElementById('price-breakdown').textContent = breakdown;
   }
 
   function selectPlan(plan) {
@@ -2204,6 +2218,7 @@
 
   function selectBins(n) {
     selectedBins = n;
+    document.getElementById('bins-custom').style.display = 'none';
     [1,2,3,4].forEach(function(i) {
       var el = document.getElementById('bins-' + i);
       if (i === n) {
@@ -2217,6 +2232,38 @@
       }
     });
     updatePrice();
+  }
+
+  function selectBinsPlus() {
+    selectedBins = 4;
+    [1,2,3,4].forEach(function(i) {
+      var el = document.getElementById('bins-' + i);
+      el.style.border = i === 4 ? '1px solid rgba(0,200,150,0.6)' : '1px solid rgba(255,255,255,0.12)';
+      el.style.background = i === 4 ? 'rgba(0,200,150,0.1)' : 'rgba(255,255,255,0.04)';
+      el.style.color = i === 4 ? '#00C896' : 'rgba(255,255,255,0.7)';
+    });
+    document.getElementById('bins-custom').style.display = 'block';
+    document.getElementById('bins-custom-input').value = 4;
+    updatePrice();
+  }
+
+  function adjustCustomBins(delta) {
+    var input = document.getElementById('bins-custom-input');
+    var val = Math.max(4, Math.min(20, parseInt(input.value) + delta));
+    input.value = val;
+    selectedBins = val;
+    updatePrice();
+  }
+
+  function setCustomBins(val) {
+    val = Math.max(4, Math.min(20, parseInt(val) || 4));
+    selectedBins = val;
+    updatePrice();
+  }
+
+  function resetBinsToButtons() {
+    document.getElementById('bins-custom').style.display = 'none';
+    selectBins(1);
   }
 
   document.getElementById('f-zip') && document.getElementById('f-zip').addEventListener('input', function() {
