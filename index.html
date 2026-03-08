@@ -1110,22 +1110,20 @@
   }
 
   @media (max-width: 768px) {
-    .hero { position: relative; overflow: hidden; }
-    .hero-container { position: static !important; display: block !important; }
-    .hero-container > div { width: 55% !important; }
+    .hero-container { display: flex !important; align-items: flex-start !important; position: relative !important; gap: 0 !important; }
+    .hero-container > div { flex: 0 0 55% !important; width: 55% !important; position: relative !important; z-index: 2 !important; }
     #hero-image {
       display: block !important;
-      position: absolute !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      width: 48% !important;
+      position: static !important;
+      flex: 0 0 45% !important;
+      width: 45% !important;
       max-width: none !important;
-      height: 360px !important;
-      margin: 0 !important;
-      flex: none !important;
+      height: 260px !important;
+      margin: 90px 0 0 0 !important;
       object-fit: contain !important;
-      object-position: bottom right !important;
+      object-position: top center !important;
       z-index: 1 !important;
+      align-self: flex-start !important;
     }
   }
   </style>
