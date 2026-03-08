@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx supabase:*)",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_d99b8f5d0be985e01eb8d298e8e80d8748cdeddc npx supabase:*)",
+      "Bash(git:*)"
+    ]
+  }
+}

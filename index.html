@@ -2539,7 +2539,30 @@
     });
 
     if (response.ok) {
-      btn.closest('div[style*="flex-direction:column"]').innerHTML = '<div style="text-align:center; padding:40px 20px;"><div style="font-size:48px; margin-bottom:16px;">✅</div><h3 style="font-family:Bebas Neue,sans-serif; font-size:28px; color:#00C896; margin-bottom:8px;">BOOKING RECEIVED!</h3><p style="color:rgba(255,255,255,0.6); font-size:14px; line-height:1.6;">Thanks ' + name + '! Your clean is booked for the last week of ' + monthLabel + '. We\'ll text you at ' + phone + ' 3 days before with your exact day and arrival window.</p><button onclick="closeBookingModal()" style="margin-top:24px; padding:12px 32px; background:#00C896; border:none; border-radius:10px; color:#000; font-weight:800; font-size:14px; cursor:pointer; font-family:DM Sans,sans-serif;">Done</button></div>';
+      btn.textContent = 'Redirecting to payment...';
+
+      var paymentResponse = await fetch('https://fuyvrepazocbkufywexu.supabase.co/functions/v1/create-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXZyZXBhem9jYmt1Znl3ZXh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MzgzNzMsImV4cCI6MjA4ODUxNDM3M30.70d9VKNHI1xGVVJjKF4BvRpQa1fFq6a1cH3IRzC2FRE'
+        },
+        body: JSON.stringify({
+          plan: selectedPlan,
+          bins: selectedBins,
+          name: name,
+          email: email
+        })
+      });
+
+      var paymentData = await paymentResponse.json();
+
+      if (paymentData.url) {
+        window.location.href = paymentData.url;
+      } else {
+        console.error('Stripe error:', paymentData.error);
+        alert('Booking saved but payment link failed. Please call us at (347) 953-8998.');
+      }
     } else {
       var err = await response.text();
       console.error('Supabase error:', err);
