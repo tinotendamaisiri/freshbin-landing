@@ -2097,8 +2097,79 @@
 
         <!-- ZIP -->
         <div>
-          <label style="display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">ZIP Code *</label>
-          <input id="f-zip" type="text" placeholder="11413" maxlength="5" style="width:100%; padding:12px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#ffffff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none;" />
+          <label style="display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:2px;">ZIP Code *</label>
+          <p style="font-size:11px; color:rgba(255,255,255,0.4); margin:2px 0 6px 0;">Currently serving Queens, NY only</p>
+          <select id="f-zip" onchange="updateServiceDay()" style="width:100%; padding:12px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#ffffff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none;">
+            <option value="">Select your ZIP code</option>
+            <optgroup label="Monday — Southeast Queens">
+              <option value="11413">11413</option>
+              <option value="11411">11411</option>
+              <option value="11422">11422</option>
+              <option value="11436">11436</option>
+            </optgroup>
+            <optgroup label="Tuesday — Jamaica Corridor">
+              <option value="11432">11432</option>
+              <option value="11433">11433</option>
+              <option value="11434">11434</option>
+              <option value="11435">11435</option>
+              <option value="11412">11412</option>
+              <option value="11423">11423</option>
+              <option value="11427">11427</option>
+              <option value="11428">11428</option>
+              <option value="11429">11429</option>
+            </optgroup>
+            <optgroup label="Wednesday — Southwest Queens">
+              <option value="11414">11414</option>
+              <option value="11415">11415</option>
+              <option value="11416">11416</option>
+              <option value="11417">11417</option>
+              <option value="11418">11418</option>
+              <option value="11419">11419</option>
+              <option value="11420">11420</option>
+              <option value="11421">11421</option>
+            </optgroup>
+            <optgroup label="Thursday — Central Queens">
+              <option value="11373">11373</option>
+              <option value="11374">11374</option>
+              <option value="11375">11375</option>
+              <option value="11366">11366</option>
+              <option value="11367">11367</option>
+              <option value="11368">11368</option>
+              <option value="11385">11385</option>
+              <option value="11378">11378</option>
+              <option value="11379">11379</option>
+            </optgroup>
+            <optgroup label="Friday — North Queens">
+              <option value="11354">11354</option>
+              <option value="11355">11355</option>
+              <option value="11356">11356</option>
+              <option value="11357">11357</option>
+              <option value="11358">11358</option>
+              <option value="11359">11359</option>
+              <option value="11360">11360</option>
+              <option value="11361">11361</option>
+              <option value="11362">11362</option>
+              <option value="11363">11363</option>
+              <option value="11364">11364</option>
+              <option value="11365">11365</option>
+            </optgroup>
+            <optgroup label="Saturday — NW Queens &amp; Rockaways">
+              <option value="11101">11101</option>
+              <option value="11102">11102</option>
+              <option value="11103">11103</option>
+              <option value="11104">11104</option>
+              <option value="11105">11105</option>
+              <option value="11106">11106</option>
+              <option value="11370">11370</option>
+              <option value="11372">11372</option>
+              <option value="11377">11377</option>
+              <option value="11691">11691</option>
+              <option value="11692">11692</option>
+              <option value="11693">11693</option>
+              <option value="11694">11694</option>
+              <option value="11697">11697</option>
+            </optgroup>
+          </select>
           <div id="service-day-display" style="display:none; margin-top:8px; padding:8px 12px; background:rgba(0,200,150,0.1); border-radius:8px; border:1px solid rgba(0,200,150,0.2); font-size:12px; color:#00C896;"></div>
         </div>
 
@@ -2319,23 +2390,19 @@
     selectBins(1);
   }
 
-  document.getElementById('f-zip') && document.getElementById('f-zip').addEventListener('input', function() {
-    var zip = this.value.trim();
+  function updateServiceDay() {
+    var zip = document.getElementById('f-zip').value;
     var dayEl = document.getElementById('service-day-display');
     if (zipDays[zip]) {
       dayEl.style.display = 'block';
       dayEl.textContent = '📅 Your service day: ' + zipDays[zip];
       dayEl.style.color = '#00C896';
-    } else if (zip.length === 5) {
-      dayEl.style.display = 'block';
-      dayEl.textContent = '📅 Queens ZIP confirmed — we\'ll assign your day on confirmation';
-      dayEl.style.color = 'rgba(255,255,255,0.5)';
     } else {
       dayEl.style.display = 'none';
     }
     var modalDayEl = document.getElementById('modal-service-day');
-    if (modalDayEl) modalDayEl.textContent = zipDays[zip] ? zipDays[zip] + 's' : 'TBC';
-  });
+    if (modalDayEl) modalDayEl.textContent = zipDays[zip] ? zipDays[zip] + 's' : 'Enter ZIP to see';
+  }
 
   // Populate next 4 months in the dropdown
   (function() {
