@@ -2098,7 +2098,7 @@
           </div>
           <div>
             <label style="display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">Email <span style="text-transform:none; letter-spacing:0; opacity:0.5;">(optional)</span></label>
-            <input id="f-email" type="email" placeholder="you@email.com" style="width:100%; padding:12px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#ffffff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none;" />
+            <input id="f-email" type="email" required placeholder="you@email.com" style="width:100%; padding:12px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#ffffff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none;" />
           </div>
         </div>
 
@@ -2480,7 +2480,7 @@
   var zip = document.getElementById('f-zip').value.trim();
   var date = document.getElementById('f-date').value;
 
-  if (!name || !phone || !address || !zip || !date) {
+  if (!name || !phone || !email || !address || !zip || !date) {
     alert('Please fill in all required fields.');
     return;
   }
