@@ -2004,6 +2004,13 @@
   #mobile-cta { display: block !important; }
   body { padding-bottom: 110px; }
 }
+#booking-modal select option {
+  background: #1a2e1a;
+  color: #ffffff;
+}
+#booking-modal select {
+  color: #ffffff !important;
+}
 </style>
 <div id="booking-modal" style="display:none; position:fixed; inset:0; z-index:99999; overflow-y:auto;">
   <div style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px);" onclick="closeBookingModal()"></div>
@@ -2012,9 +2019,12 @@
 
       <!-- Header -->
       <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px;">
-        <div>
-          <h2 style="font-family:'Bebas Neue',sans-serif; font-size:32px; color:#ffffff; letter-spacing:1px; margin:0 0 4px;">BOOK YOUR CLEAN</h2>
-          <p style="color:rgba(255,255,255,0.45); font-size:13px; margin:0;">Takes 60 seconds. We'll confirm via text.</p>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <img src="freshbin_logo.png" alt="FreshBin NYC" style="width:48px; height:48px; object-fit:contain;" />
+          <div>
+            <h2 style="font-family:'Bebas Neue',sans-serif; font-size:32px; color:#ffffff; letter-spacing:1px; margin:0 0 4px;">BOOK YOUR CLEAN</h2>
+            <p style="color:rgba(255,255,255,0.45); font-size:13px; margin:0;">Takes 60 seconds. We'll confirm via text.</p>
+          </div>
         </div>
         <button onclick="closeBookingModal()" style="background:rgba(255,255,255,0.08); border:none; color:rgba(255,255,255,0.6); width:36px; height:36px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
       </div>
