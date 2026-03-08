@@ -1079,8 +1079,25 @@
       .nav-links { display: none; }
       .nav-mobile-cta { display: inline-flex; }
       .hero { padding: 100px 20px 60px; }
-      .hero-visual { height: auto; margin-top: 32px; }
-      .hero-visual img { max-width: 280px; }
+      .hero-inner {
+        position: relative;
+      }
+      .hero-visual {
+        display: block !important;
+        position: absolute;
+        top: 0;
+        right: -16px;
+        width: 180px;
+        height: 180px;
+        object-fit: contain;
+        opacity: 0.85;
+        z-index: 0;
+        pointer-events: none;
+      }
+      .hero-text {
+        position: relative;
+        z-index: 1;
+      }
       .hero h1 { font-size: 52px; }
       .hero-actions { flex-direction: column; width: 100%; }
       .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
