@@ -1110,40 +1110,24 @@
   }
 
   @media (max-width: 768px) {
-    .hero-container { display: block !important; position: static !important; }
-    .hero-container > div { width: 100% !important; position: relative !important; z-index: 2 !important; }
-    .hero h1 { padding-right: 46% !important; }
-    .hero-badge { padding-right: 0 !important; }
-    .hero-sub { max-width: 100% !important; }
+    .hero-container { display: flex !important; align-items: flex-start !important; position: relative !important; gap: 0 !important; }
+    .hero-container > div { flex: 0 0 55% !important; width: 55% !important; position: relative !important; z-index: 2 !important; overflow: visible !important; }
+    .hero-sub, .hero-actions { width: 182% !important; max-width: none !important; }
     #hero-image {
       display: block !important;
-      position: absolute !important;
-      top: 0 !important;
-      right: 0 !important;
-      width: 44% !important;
+      position: static !important;
+      flex: 0 0 45% !important;
+      width: 45% !important;
       max-width: none !important;
-      height: 210px !important;
-      margin: 0 !important;
-      flex: none !important;
+      height: 260px !important;
+      margin: 90px 0 0 0 !important;
       object-fit: contain !important;
-      object-position: top right !important;
+      object-position: top center !important;
       z-index: 1 !important;
+      align-self: flex-start !important;
     }
   }
   </style>
-<script>
-  function alignHeroImage() {
-    if (window.innerWidth <= 768) {
-      var h1 = document.querySelector('.hero h1');
-      var img = document.getElementById('hero-image');
-      if (h1 && img) {
-        img.style.setProperty('top', h1.offsetTop + 'px', 'important');
-      }
-    }
-  }
-  window.addEventListener('load', alignHeroImage);
-  window.addEventListener('resize', alignHeroImage);
-</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -1361,9 +1345,9 @@
         </a>
       </div>
 
+    </div>
+    </div>
     <img id="hero-image" src="hero-image.png" alt="FreshBin clean bin">
-    </div>
-    </div>
     </div>
 
     <div class="hero-visual">
