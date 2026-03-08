@@ -2350,6 +2350,14 @@
       }
     });
     updatePrice();
+    var zip = document.getElementById('f-zip') ? document.getElementById('f-zip').value : '';
+    var modalDayEl = document.getElementById('modal-service-day');
+    if (modalDayEl && zip) {
+      var day = zipDays[zip];
+      if (day) {
+        modalDayEl.textContent = plan === 'onetime' ? day : day + 's';
+      }
+    }
   }
 
   function selectBins(n) {
@@ -2413,7 +2421,14 @@
       dayEl.style.display = 'none';
     }
     var modalDayEl = document.getElementById('modal-service-day');
-    if (modalDayEl) modalDayEl.textContent = zipDays[zip] ? zipDays[zip] + 's' : 'Enter ZIP to see';
+    if (modalDayEl) {
+      var day = zipDays[zip];
+      if (day) {
+        modalDayEl.textContent = selectedPlan === 'onetime' ? day : day + 's';
+      } else {
+        modalDayEl.textContent = 'Enter ZIP to see';
+      }
+    }
   }
 
   // Populate next 4 months in the dropdown
