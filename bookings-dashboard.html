@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -86,9 +87,10 @@ body { background:#0a1f14; color:#fff; font-family:'DM Sans',sans-serif; min-hei
   <div style="background:#0d2418;border:1px solid rgba(0,200,150,0.2);border-radius:20px;padding:40px;width:100%;max-width:360px;text-align:center;">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#00C896;letter-spacing:2px;margin-bottom:8px;">FRESHBIN</div>
     <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Admin Dashboard</div>
-    <input type="password" id="admin-password" placeholder="Enter password" style="width:100%;padding:14px;background:#1a3a2a;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;" onkeydown="if(event.key==='Enter')checkPassword()">
-    <button onclick="checkPassword()" style="width:100%;padding:14px;background:#00C896;border:none;border-radius:10px;color:#000;font-weight:800;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">Enter Dashboard</button>
-    <div id="auth-error" style="color:#ff5050;font-size:12px;margin-top:10px;display:none;">Incorrect password. Try again.</div>
+    <input type="email" id="admin-email" placeholder="Email" style="width:100%;padding:14px;background:#1a3a2a;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;">
+    <input type="password" id="admin-password" placeholder="Password" style="width:100%;padding:14px;background:#1a3a2a;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;" onkeydown="if(event.key==='Enter')adminLogin()">
+    <button onclick="adminLogin()" id="login-btn" style="width:100%;padding:14px;background:#00C896;border:none;border-radius:10px;color:#000;font-weight:800;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">Enter Dashboard</button>
+    <div id="auth-error" style="color:#ff5050;font-size:12px;margin-top:10px;display:none;">Incorrect email or password.</div>
   </div>
 </div>
 
@@ -131,25 +133,55 @@ body { background:#0a1f14; color:#fff; font-family:'DM Sans',sans-serif; min-hei
 const SUPABASE_URL = 'https://fuyvrepazocbkufywexu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXZyZXBhem9jYmt1Znl3ZXh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MzgzNzMsImV4cCI6MjA4ODUxNDM3M30.70d9VKNHI1xGVVJjKF4BvRpQa1fFq6a1cH3IRzC2FRE';
 
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let allBookings = [];
 let currentTab = 'all';
 let map, markers = [];
 
-// Init map
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    document.getElementById('auth-gate').style.display = 'none';
+    initMap();
+    loadBookings();
+  } else {
+    initMap();
+  }
+});
+
+async function adminLogin() {
+  const email = document.getElementById('admin-email').value.trim();
+  const password = document.getElementById('admin-password').value;
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Signing in...';
+  btn.disabled = true;
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    document.getElementById('auth-error').style.display = 'block';
+    btn.textContent = 'Enter Dashboard';
+    btn.disabled = false;
+  } else {
+    document.getElementById('auth-gate').style.display = 'none';
+    loadBookings();
+  }
+}
+
+function initMap() {
   map = L.map('map').setView([40.7282, -73.7949], 12);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '©OpenStreetMap ©CartoDB', maxZoom: 19
   }).addTo(map);
-});
+}
 
 async function loadBookings() {
   document.getElementById('bookings-panel').innerHTML = '<div class="loading"><div class="loading-spinner"></div>Loading bookings...</div>';
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/bookings?order=created_at.desc`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-    });
-    allBookings = await res.json();
+    const { data, error } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    allBookings = data;
     updateStats();
     updateCounts();
     renderBookings();
@@ -266,28 +298,8 @@ async function updateMap(bookings) {
 
 async function markDone(id, currentlyDone) {
   const newStatus = currentlyDone ? 'pending' : 'done';
-  await fetch(`${SUPABASE_URL}/rest/v1/bookings?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify({ status: newStatus })
-  });
+  await supabase.from('bookings').update({ status: newStatus }).eq('id', id);
   await loadBookings();
-}
-
-function checkPassword() {
-  var pwd = document.getElementById('admin-password').value;
-  if (pwd === 'FreshBin2025!') {
-    document.getElementById('auth-gate').style.display = 'none';
-    loadBookings();
-  } else {
-    document.getElementById('auth-error').style.display = 'block';
-    document.getElementById('admin-password').value = '';
-  }
 }
 </script>
 </body>
