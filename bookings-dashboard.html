@@ -82,6 +82,16 @@ body { background:#0a1f14; color:#fff; font-family:'DM Sans',sans-serif; min-hei
 </head>
 <body>
 
+<div id="auth-gate" style="position:fixed;inset:0;background:#0a1f14;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#0d2418;border:1px solid rgba(0,200,150,0.2);border-radius:20px;padding:40px;width:100%;max-width:360px;text-align:center;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#00C896;letter-spacing:2px;margin-bottom:8px;">FRESHBIN</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Admin Dashboard</div>
+    <input type="password" id="admin-password" placeholder="Enter password" style="width:100%;padding:14px;background:#1a3a2a;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;" onkeydown="if(event.key==='Enter')checkPassword()">
+    <button onclick="checkPassword()" style="width:100%;padding:14px;background:#00C896;border:none;border-radius:10px;color:#000;font-weight:800;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">Enter Dashboard</button>
+    <div id="auth-error" style="color:#ff5050;font-size:12px;margin-top:10px;display:none;">Incorrect password. Try again.</div>
+  </div>
+</div>
+
 <div class="nav">
   <div class="nav-logo">🗑 FreshBin Dashboard</div>
   <div class="nav-right">
@@ -131,7 +141,6 @@ window.addEventListener('load', () => {
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '©OpenStreetMap ©CartoDB', maxZoom: 19
   }).addTo(map);
-  loadBookings();
 });
 
 async function loadBookings() {
@@ -268,6 +277,17 @@ async function markDone(id, currentlyDone) {
     body: JSON.stringify({ status: newStatus })
   });
   await loadBookings();
+}
+
+function checkPassword() {
+  var pwd = document.getElementById('admin-password').value;
+  if (pwd === 'FreshBin2025!') {
+    document.getElementById('auth-gate').style.display = 'none';
+    loadBookings();
+  } else {
+    document.getElementById('auth-error').style.display = 'block';
+    document.getElementById('admin-password').value = '';
+  }
 }
 </script>
 </body>
