@@ -87,10 +87,21 @@ body { background:#0a1f14; color:#fff; font-family:'DM Sans',sans-serif; min-hei
   <div style="background:#0d2418;border:1px solid rgba(0,200,150,0.2);border-radius:20px;padding:40px;width:100%;max-width:360px;text-align:center;">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#00C896;letter-spacing:2px;margin-bottom:8px;">FRESHBIN</div>
     <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Admin Dashboard</div>
-    <input type="email" id="admin-email" placeholder="Email" style="width:100%;padding:14px;background:#1a3a2a;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;">
-    <input type="password" id="admin-password" placeholder="Password" style="width:100%;padding:14px;background:#1a3a2a;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;">
-    <button id="login-btn" style="width:100%;padding:14px;background:#00C896;border:none;border-radius:10px;color:#000;font-weight:800;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">Enter Dashboard</button>
-    <div id="auth-error" style="color:#ff5050;font-size:12px;margin-top:10px;display:none;">Incorrect email or password.</div>
+    <div id="login-form">
+      <input type="email" id="admin-email" placeholder="Email" style="width:100%;padding:14px;background:#1a3a2a;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;">
+      <input type="password" id="admin-password" placeholder="Password" style="width:100%;padding:14px;background:#1a3a2a;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;">
+      <button id="login-btn" style="width:100%;padding:14px;background:#00C896;border:none;border-radius:10px;color:#000;font-weight:800;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">Enter Dashboard</button>
+      <div id="auth-error" style="color:#ff5050;font-size:12px;margin-top:10px;display:none;"></div>
+      <p onclick="showResetForm()" style="color:#00C896;font-size:12px;margin-top:14px;cursor:pointer;text-decoration:underline;">Forgot Password?</p>
+    </div>
+    <div id="reset-form" style="display:none;">
+      <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px;">Enter your email and we'll send a reset link.</p>
+      <input type="email" id="reset-email" placeholder="Email" style="width:100%;padding:14px;background:#1a3a2a;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;">
+      <button onclick="sendResetEmail()" style="width:100%;padding:14px;background:#00C896;border:none;border-radius:10px;color:#000;font-weight:800;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">Send Reset Link</button>
+      <p onclick="showLoginForm()" style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:14px;cursor:pointer;">← Back to login</p>
+      <div id="reset-success" style="color:#00C896;font-size:12px;margin-top:10px;display:none;">Reset link sent! Check your email.</div>
+      <div id="reset-error" style="color:#ff5050;font-size:12px;margin-top:10px;display:none;"></div>
+    </div>
   </div>
 </div>
 
@@ -100,6 +111,7 @@ body { background:#0a1f14; color:#fff; font-family:'DM Sans',sans-serif; min-hei
     <div class="live-dot"></div>
     <span class="live-label">Live</span>
     <button class="refresh-btn" onclick="loadBookings()">↻ Refresh</button>
+    <button onclick="adminLogout()" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">Logout</button>
   </div>
 </div>
 
@@ -168,7 +180,10 @@ async function adminLogin() {
   const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
   if (error) {
-    document.getElementById('auth-error').textContent = error.message;
+    let msg = error.message;
+    if (msg.includes('Invalid login credentials')) msg = 'Wrong email or password. Try again.';
+    else if (msg.includes('Email not confirmed')) msg = 'Please verify your email first.';
+    document.getElementById('auth-error').textContent = msg;
     document.getElementById('auth-error').style.display = 'block';
     btn.textContent = 'Enter Dashboard';
     btn.disabled = false;
@@ -176,6 +191,40 @@ async function adminLogin() {
     document.getElementById('auth-gate').style.display = 'none';
     loadBookings();
   }
+}
+
+function showResetForm() {
+  document.getElementById('reset-form').style.display = 'block';
+  document.getElementById('login-form').style.display = 'none';
+}
+
+function showLoginForm() {
+  document.getElementById('reset-form').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+}
+
+async function sendResetEmail() {
+  const email = document.getElementById('reset-email').value.trim();
+  if (!email) {
+    document.getElementById('reset-error').textContent = 'Please enter your email.';
+    document.getElementById('reset-error').style.display = 'block';
+    return;
+  }
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://freshbin.nyc/bookings-dashboard.html'
+  });
+  if (error) {
+    document.getElementById('reset-error').textContent = error.message;
+    document.getElementById('reset-error').style.display = 'block';
+  } else {
+    document.getElementById('reset-success').style.display = 'block';
+    document.getElementById('reset-error').style.display = 'none';
+  }
+}
+
+async function adminLogout() {
+  await supabaseClient.auth.signOut();
+  location.reload();
 }
 
 async function loadBookings() {
