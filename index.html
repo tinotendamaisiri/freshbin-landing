@@ -2094,7 +2094,7 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
           <div>
             <label style="display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">Phone *</label>
-            <input id="f-phone" type="tel" placeholder="(347) 555-0100" style="width:100%; padding:12px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#ffffff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none;" />
+            <input id="f-phone" type="tel" placeholder="(347) 555-0100" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')" style="width:100%; padding:12px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#ffffff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none;" />
           </div>
           <div>
             <label style="display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">EMAIL *</label>
@@ -2497,6 +2497,15 @@
     return;
   }
 
+  var btn = document.querySelector('#booking-modal button[onclick="submitBooking()"]');
+  if (phone.length !== 10) {
+    alert('Please enter a valid 10-digit phone number.');
+    btn.textContent = 'Confirm Booking →';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+    return;
+  }
+
   var waterAccess = document.getElementById('f-water-access').value;
 
   var binTypes = [];
@@ -2519,7 +2528,6 @@
   var source = document.getElementById('f-source').value;
   var notes = document.getElementById('f-notes').value.trim();
 
-  var btn = document.querySelector('#booking-modal button[onclick="submitBooking()"]');
   if (waterAccess === 'no') {
     alert('Sorry, we currently require an outdoor water connection to service your bins. We\'re working on expanding to all property types soon!');
     btn.textContent = 'Confirm Booking →';
