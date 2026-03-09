@@ -133,20 +133,18 @@ body { background:#0a1f14; color:#fff; font-family:'DM Sans',sans-serif; min-hei
 const SUPABASE_URL = 'https://fuyvrepazocbkufywexu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXZyZXBhem9jYmt1Znl3ZXh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MzgzNzMsImV4cCI6MjA4ODUxNDM3M30.70d9VKNHI1xGVVJjKF4BvRpQa1fFq6a1cH3IRzC2FRE';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+let supabase;
 let allBookings = [];
 let currentTab = 'all';
 let map, markers = [];
 
 window.addEventListener('load', async () => {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  initMap();
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     document.getElementById('auth-gate').style.display = 'none';
-    initMap();
     loadBookings();
-  } else {
-    initMap();
   }
 });
 
