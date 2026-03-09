@@ -59,6 +59,8 @@ body { background:#111111; color:#fff; font-family:'DM Sans',sans-serif; min-hei
 .btn-call:hover { background:#2a4a3a; }
 .btn-done { background:#1a3a2a; color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.08); }
 .btn-done.completed { background:rgba(0,200,150,0.15); color:#00C896; border-color:rgba(0,200,150,0.3); }
+.btn-paid { background:#1a1a1a; color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.08); }
+.btn-paid.paid { background:rgba(255,200,0,0.1); color:#ffc800; border-color:rgba(255,200,0,0.3); cursor:default; }
 
 /* MAP */
 #map-container { border-left:1px solid rgba(255,255,255,0.06); }

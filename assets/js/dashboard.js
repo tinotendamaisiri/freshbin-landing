@@ -103,10 +103,12 @@ function updateStats() {
   const done = allBookings.filter(b => b.status === 'done').length;
   const pending = total - done;
   const revenue = allBookings.reduce((s,b) => s + (b.estimated_price || 0), 0);
+  const paid = allBookings.filter(b => b.payment_date).length;
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-pending').textContent = pending;
   document.getElementById('stat-done').textContent = done;
   document.getElementById('stat-revenue').textContent = '$' + revenue.toLocaleString();
+  document.getElementById('stat-paid').textContent = paid;
 }
 
 function updateCounts() {
@@ -152,7 +154,10 @@ function renderBookings() {
           <div class="card-name">${b.name || '—'}</div>
           <div class="card-address">${b.address || '—'}, ${b.zip || ''}</div>
         </div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.35);">${b.start_month || ''}</div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);">Clean: ${b.start_month || '—'}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:2px;">Booked: ${b.created_at ? new Date(b.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '—'}</div>
+        </div>
       </div>
       <div class="card-badges">
         <span class="badge badge-plan">${planLabel}</span>
@@ -160,10 +165,15 @@ function renderBookings() {
         <span class="badge badge-price">${price}</span>
         ${waterIcon}
       </div>
+      ${b.payment_date ?
+        `<div style="font-size:11px;color:#ffc800;margin-top:6px;">💰 Paid via ${b.payment_method || 'unknown'} · ${new Date(b.payment_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` :
+        `<div style="font-size:11px;color:rgba(255,80,80,0.7);margin-top:6px;">⏳ Payment pending</div>`
+      }
       <div class="card-actions">
         <a class="action-btn btn-nav" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((b.address||'') + ' ' + (b.zip||'') + ' Queens NY')}" target="_blank">🗺 Navigate</a>
         <a class="action-btn btn-call" href="tel:${b.phone}">📞 Call</a>
         <button class="action-btn btn-done ${isDone ? 'completed' : ''}" onclick="markDone(${b.id}, ${isDone})">${isDone ? '✅ Done' : 'Mark Done'}</button>
+        <button class="action-btn btn-paid ${b.payment_date ? 'paid' : ''}" onclick="markPaid(${b.id}, ${b.payment_date ? 'true' : 'false'})">${b.payment_date ? '💰 Paid' : 'Mark Paid'}</button>
       </div>
     </div>`;
   });
@@ -202,6 +212,17 @@ async function updateMap(bookings) {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.1));
   }
+}
+
+async function markPaid(id, alreadyPaid) {
+  if (alreadyPaid) return;
+  const isZelle = confirm('Mark as paid. Was this paid via Zelle?\nOK = Zelle | Cancel = Card');
+  const method = isZelle ? 'zelle' : 'card';
+  await supabaseClient.from('bookings').update({
+    payment_date: new Date().toISOString(),
+    payment_method: method
+  }).eq('id', id);
+  await loadBookings();
 }
 
 async function markDone(id, currentlyDone) {
@@ -302,17 +323,25 @@ async function optimizeRoute() {
           <div class="card-name">${b.name || '—'}</div>
           <div class="card-address">${b.address || '—'}, ${b.zip || ''}</div>
         </div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.35);">${b.start_month || ''}</div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);">Clean: ${b.start_month || '—'}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:2px;">Booked: ${b.created_at ? new Date(b.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '—'}</div>
+        </div>
       </div>
       <div class="card-badges">
         <span class="badge badge-plan">${planLabel}</span>
         <span class="badge badge-bins">${b.bins || 1} bin${b.bins > 1 ? 's' : ''}</span>
         <span class="badge badge-price">${price}</span>
       </div>
+      ${b.payment_date ?
+        `<div style="font-size:11px;color:#ffc800;margin-top:6px;">💰 Paid via ${b.payment_method || 'unknown'} · ${new Date(b.payment_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` :
+        `<div style="font-size:11px;color:rgba(255,80,80,0.7);margin-top:6px;">⏳ Payment pending</div>`
+      }
       <div class="card-actions">
         <a class="action-btn btn-nav" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((b.address||'') + ' ' + (b.zip||'') + ' Queens NY')}" target="_blank">🗺 Navigate</a>
         <a class="action-btn btn-call" href="tel:${b.phone}">📞 Call</a>
         <button class="action-btn btn-done ${isDone ? 'completed' : ''}" onclick="markDone(${b.id}, ${isDone})">${isDone ? '✅ Done' : 'Mark Done'}</button>
+        <button class="action-btn btn-paid ${b.payment_date ? 'paid' : ''}" onclick="markPaid(${b.id}, ${b.payment_date ? 'true' : 'false'})">${b.payment_date ? '💰 Paid' : 'Mark Paid'}</button>
       </div>
     </div>`;
   });
