@@ -133,20 +133,25 @@ body { background:#0a1f14; color:#fff; font-family:'DM Sans',sans-serif; min-hei
 const SUPABASE_URL = 'https://fuyvrepazocbkufywexu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXZyZXBhem9jYmt1Znl3ZXh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MzgzNzMsImV4cCI6MjA4ODUxNDM3M30.70d9VKNHI1xGVVJjKF4BvRpQa1fFq6a1cH3IRzC2FRE';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let supabaseClient;
 let allBookings = [];
 let currentTab = 'all';
 let map, markers = [];
 
 window.addEventListener('load', async () => {
-  initMap();
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  map = L.map('map').setView([40.7282, -73.7949], 12);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '©OpenStreetMap ©CartoDB', maxZoom: 19
+  }).addTo(map);
 
   document.getElementById('login-btn').addEventListener('click', adminLogin);
   document.getElementById('admin-password').addEventListener('keydown', e => {
     if (e.key === 'Enter') adminLogin();
   });
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
     document.getElementById('auth-gate').style.display = 'none';
     loadBookings();
@@ -160,14 +165,9 @@ async function adminLogin() {
   btn.textContent = 'Signing in...';
   btn.disabled = true;
 
-  console.log('Attempting login with:', email);
-
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-  console.log('Login result:', data, error);
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
   if (error) {
-    console.error('Auth error:', error.message);
     document.getElementById('auth-error').textContent = error.message;
     document.getElementById('auth-error').style.display = 'block';
     btn.textContent = 'Enter Dashboard';
@@ -178,17 +178,10 @@ async function adminLogin() {
   }
 }
 
-function initMap() {
-  map = L.map('map').setView([40.7282, -73.7949], 12);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '©OpenStreetMap ©CartoDB', maxZoom: 19
-  }).addTo(map);
-}
-
 async function loadBookings() {
   document.getElementById('bookings-panel').innerHTML = '<div class="loading"><div class="loading-spinner"></div>Loading bookings...</div>';
   try {
-    const { data, error } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabaseClient.from('bookings').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     allBookings = data;
     updateStats();
@@ -307,7 +300,7 @@ async function updateMap(bookings) {
 
 async function markDone(id, currentlyDone) {
   const newStatus = currentlyDone ? 'pending' : 'done';
-  await supabase.from('bookings').update({ status: newStatus }).eq('id', id);
+  await supabaseClient.from('bookings').update({ status: newStatus }).eq('id', id);
   await loadBookings();
 }
 </script>
