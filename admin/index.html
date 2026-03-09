@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FreshBin — Bookings Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+</head>
+<body>
+
+<div id="auth-gate" style="position:fixed;inset:0;background:#111111;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#1a1a1a;border:1px solid rgba(0,200,150,0.2);border-radius:20px;padding:40px;width:100%;max-width:360px;text-align:center;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#00C896;letter-spacing:2px;margin-bottom:8px;">FRESHBIN</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Admin Dashboard</div>
+    <div id="login-form">
+      <input type="email" id="admin-email" placeholder="Email" style="width:100%;padding:14px;background:#222222;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;">
+      <input type="password" id="admin-password" placeholder="Password" style="width:100%;padding:14px;background:#222222;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;">
+      <button id="login-btn" style="width:100%;padding:14px;background:#00C896;border:none;border-radius:10px;color:#000;font-weight:800;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">Enter Dashboard</button>
+      <div id="auth-error" style="color:#ff5050;font-size:12px;margin-top:10px;display:none;"></div>
+      <p onclick="showResetForm()" style="color:#00C896;font-size:12px;margin-top:14px;cursor:pointer;text-decoration:underline;">Forgot Password?</p>
+    </div>
+    <div id="reset-form" style="display:none;">
+      <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px;">Enter your email and we'll send a reset link.</p>
+      <input type="email" id="reset-email" placeholder="Email" style="width:100%;padding:14px;background:#222222;border:1px solid rgba(0,200,150,0.2);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;">
+      <button onclick="sendResetEmail()" style="width:100%;padding:14px;background:#00C896;border:none;border-radius:10px;color:#000;font-weight:800;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">Send Reset Link</button>
+      <p onclick="showLoginForm()" style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:14px;cursor:pointer;">← Back to login</p>
+      <div id="reset-success" style="color:#00C896;font-size:12px;margin-top:10px;display:none;">Reset link sent! Check your email.</div>
+      <div id="reset-error" style="color:#ff5050;font-size:12px;margin-top:10px;display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-logo">🗑 FreshBin Dashboard</div>
+  <div class="nav-right">
+    <div class="live-dot"></div>
+    <span class="live-label">Live</span>
+    <button class="refresh-btn" onclick="loadBookings()">↻ Refresh</button>
+    <button onclick="adminLogout()" style="background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">Logout</button>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-card"><div class="stat-val" id="stat-total">—</div><div class="stat-lbl">Total Bookings</div></div>
+  <div class="stat-card"><div class="stat-val" id="stat-pending">—</div><div class="stat-lbl">Pending</div></div>
+  <div class="stat-card"><div class="stat-val" id="stat-done">—</div><div class="stat-lbl">Completed</div></div>
+  <div class="stat-card"><div class="stat-val" id="stat-revenue">—</div><div class="stat-lbl">Est. Revenue</div></div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('all')" id="tab-all">All <span class="tab-count" id="count-all">0</span></div>
+    <div class="tab" onclick="switchTab('Monday')" id="tab-Monday">Mon <span class="tab-count" id="count-Monday">0</span></div>
+    <div class="tab" onclick="switchTab('Tuesday')" id="tab-Tuesday">Tue <span class="tab-count" id="count-Tuesday">0</span></div>
+    <div class="tab" onclick="switchTab('Wednesday')" id="tab-Wednesday">Wed <span class="tab-count" id="count-Wednesday">0</span></div>
+    <div class="tab" onclick="switchTab('Thursday')" id="tab-Thursday">Thu <span class="tab-count" id="count-Thursday">0</span></div>
+    <div class="tab" onclick="switchTab('Friday')" id="tab-Friday">Fri <span class="tab-count" id="count-Friday">0</span></div>
+    <div class="tab" onclick="switchTab('Saturday')" id="tab-Saturday">Sat <span class="tab-count" id="count-Saturday">0</span></div>
+  </div>
+</div>
+
+<div class="filters-bar" style="padding:10px 24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,0.06);">
+  <select id="filter-month" onchange="applyFilters()" style="background:#0d2418;color:#fff;border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;">
+    <option value="">All Months</option>
+  </select>
+  <select id="filter-plan" onchange="applyFilters()" style="background:#0d2418;color:#fff;border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;">
+    <option value="">All Plans</option>
+    <option value="onetime">One-Time</option>
+    <option value="monthly">Monthly</option>
+    <option value="annual">Annual</option>
+  </select>
+  <select id="filter-status" onchange="applyFilters()" style="background:#0d2418;color:#fff;border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;">
+    <option value="">All Statuses</option>
+    <option value="pending">Pending</option>
+    <option value="done">Completed</option>
+  </select>
+  <select id="filter-water" onchange="applyFilters()" style="background:#0d2418;color:#fff;border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;">
+    <option value="">All Water Access</option>
+    <option value="yes">Has Spigot</option>
+    <option value="no">No Water</option>
+    <option value="unsure">Unsure</option>
+  </select>
+  <button onclick="clearFilters()" style="background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Clear</button>
+  <div style="margin-left:auto;display:flex;gap:8px;">
+    <button onclick="optimizeRoute()" style="background:#1a3a2a;color:#00C896;border:1px solid rgba(0,200,150,0.3);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🗺 Optimize Route</button>
+    <div style="position:relative;">
+      <button onclick="toggleExportMenu()" style="background:#00C896;color:#000;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">↓ Export</button>
+      <div id="export-menu" style="display:none;position:absolute;right:0;top:36px;background:#0d2418;border:1px solid rgba(0,200,150,0.2);border-radius:10px;padding:8px;z-index:100;min-width:160px;">
+        <div onclick="exportCSV()" style="padding:8px 12px;cursor:pointer;font-size:13px;border-radius:6px;color:#fff;" onmouseover="this.style.background='#1a3a2a'" onmouseout="this.style.background='transparent'">📄 Export CSV</div>
+        <div onclick="exportExcel()" style="padding:8px 12px;cursor:pointer;font-size:13px;border-radius:6px;color:#fff;" onmouseover="this.style.background='#1a3a2a'" onmouseout="this.style.background='transparent'">📊 Export Excel</div>
+        <div onclick="exportPDF()" style="padding:8px 12px;cursor:pointer;font-size:13px;border-radius:6px;color:#fff;" onmouseover="this.style.background='#1a3a2a'" onmouseout="this.style.background='transparent'">📋 Export PDF</div>
+        <div onclick="exportRoutingCSV()" style="padding:8px 12px;cursor:pointer;font-size:13px;border-radius:6px;color:#00C896;" onmouseover="this.style.background='#1a3a2a'" onmouseout="this.style.background='transparent'">🗺 Export for GPS App</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="bookings-panel" id="bookings-panel">
+    <div class="loading"><div class="loading-spinner"></div>Loading bookings...</div>
+  </div>
+  <div id="map-container"><div id="map"></div></div>
+</div>
+
+<script src="../assets/js/dashboard.js"></script>
+</body>
+</html>
