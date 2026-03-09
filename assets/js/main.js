@@ -321,30 +321,47 @@
     });
 
     if (response.ok) {
-      btn.textContent = 'Redirecting to payment...';
+      var modalInner = document.querySelector('#booking-modal > div:last-child > div');
+      modalInner.innerHTML =
+        '<div style="text-align:center; padding:30px 20px;">' +
+        '<div style="font-size:48px; margin-bottom:12px;">✅</div>' +
+        '<h3 style="font-family:Bebas Neue,sans-serif; font-size:26px; color:#00C896; margin-bottom:6px;">BOOKING CONFIRMED!</h3>' +
+        '<p style="color:rgba(255,255,255,0.5); font-size:13px; margin-bottom:24px;">Hi ' + name + '! Your slot is reserved. Now complete your payment to lock it in.</p>' +
 
-      var paymentResponse = await fetch('https://fuyvrepazocbkufywexu.supabase.co/functions/v1/create-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXZyZXBhem9jYmt1Znl3ZXh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MzgzNzMsImV4cCI6MjA4ODUxNDM3M30.70d9VKNHI1xGVVJjKF4BvRpQa1fFq6a1cH3IRzC2FRE'
-        },
-        body: JSON.stringify({
-          plan: selectedPlan,
-          bins: selectedBins,
-          name: name,
-          email: email
-        })
-      });
+        '<p style="font-size:12px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px;">Choose payment method</p>' +
 
-      var paymentData = await paymentResponse.json();
+        '<div style="display:flex; gap:10px; margin-bottom:20px;">' +
 
-      if (paymentData.url) {
-        window.location.href = paymentData.url;
-      } else {
-        console.error('Stripe error:', paymentData.error);
-        alert('Booking saved but payment link failed. Please call us at (347) 953-8998.');
-      }
+        '<button onclick="showZelleDetails()" style="flex:1; padding:14px; background:#6C1CD1; border:none; border-radius:12px; color:#fff; font-weight:800; font-size:14px; cursor:pointer; font-family:DM Sans,sans-serif;">💜 Pay with Zelle</button>' +
+
+        '<button onclick="showCardSoon()" style="flex:1; padding:14px; background:#1a1a1a; border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:rgba(255,255,255,0.4); font-weight:800; font-size:14px; cursor:pointer; font-family:DM Sans,sans-serif;">💳 Pay by Card</button>' +
+
+        '</div>' +
+
+        '<div id="zelle-details" style="display:none; background:#1a1a2e; border:1px solid rgba(108,28,209,0.3); border-radius:14px; padding:20px; text-align:left; margin-bottom:16px;">' +
+        '<p style="font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:12px; text-align:center;">Send payment to FreshBin via Zelle</p>' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);">' +
+        '<span style="font-size:12px; color:rgba(255,255,255,0.4);">Phone</span>' +
+        '<a href="tel:+13479538998" style="font-size:15px; font-weight:800; color:#6C1CD1; text-decoration:none;">+1 (347) 953-8998</a>' +
+        '</div>' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);">' +
+        '<span style="font-size:12px; color:rgba(255,255,255,0.4);">Reference</span>' +
+        '<span style="font-size:13px; font-weight:700; color:#fff;">' + name + ' — FreshBin</span>' +
+        '</div>' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">' +
+        '<span style="font-size:12px; color:rgba(255,255,255,0.4);">Amount</span>' +
+        '<span style="font-size:16px; font-weight:800; color:#00C896;">$' + estimatedPrice + '.00</span>' +
+        '</div>' +
+        '<a href="tel:+13479538998" style="display:block; margin-top:14px; padding:12px; background:#6C1CD1; border-radius:10px; color:#fff; font-weight:800; font-size:13px; text-align:center; text-decoration:none;">📱 Open Zelle / Banking App</a>' +
+        '<p style="font-size:11px; color:rgba(255,255,255,0.3); text-align:center; margin-top:8px;">Tap your bank app → Zelle → Send → enter our number</p>' +
+        '</div>' +
+
+        '<div id="card-soon" style="display:none; background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; margin-bottom:16px;">' +
+        '<p style="font-size:13px; color:rgba(255,255,255,0.5); text-align:center;">💳 Card payments coming soon! For now please use Zelle to complete your booking.</p>' +
+        '</div>' +
+
+        '<button onclick="closeBookingModal()" style="width:100%; padding:12px; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:rgba(255,255,255,0.4); font-weight:700; font-size:13px; cursor:pointer; font-family:DM Sans,sans-serif;">Close</button>' +
+        '</div>';
     } else {
       var err = await response.text();
       console.error('Supabase error:', err);
@@ -360,6 +377,16 @@
     btn.disabled = false;
     alert('Something went wrong. Please try again or call us at (347) 953-8998.');
   }
+}
+
+function showZelleDetails() {
+  document.getElementById('zelle-details').style.display = 'block';
+  document.getElementById('card-soon').style.display = 'none';
+}
+
+function showCardSoon() {
+  document.getElementById('card-soon').style.display = 'block';
+  document.getElementById('zelle-details').style.display = 'none';
 }
 
   document.addEventListener('keydown', function(e) {
