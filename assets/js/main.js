@@ -368,7 +368,14 @@
       btn.textContent = 'Confirm Booking →';
       btn.style.opacity = '1';
       btn.disabled = false;
-      alert('Something went wrong. Please try again or call us at (347) 953-8998.');
+
+      if (err.includes('unique_booking_address')) {
+        alert('This address already has a booking with us. If you need help managing your booking please call (347) 953-8998.');
+      } else if (err.includes('unique_booking_phone')) {
+        alert('This phone number already has a booking with us. If you need help managing your booking please call (347) 953-8998.');
+      } else {
+        alert('Something went wrong. Please try again or call us at (347) 953-8998.');
+      }
     }
   } catch (error) {
     console.error('Network error:', error);
