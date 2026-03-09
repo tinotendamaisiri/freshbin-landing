@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#0a1f14; color:#fff; font-family:'DM Sans',sans-serif; min-height:100vh; }
@@ -134,6 +137,42 @@ body { background:#0a1f14; color:#fff; font-family:'DM Sans',sans-serif; min-hei
   </div>
 </div>
 
+<div class="filters-bar" style="padding:10px 24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,0.06);">
+  <select id="filter-month" onchange="applyFilters()" style="background:#0d2418;color:#fff;border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;">
+    <option value="">All Months</option>
+  </select>
+  <select id="filter-plan" onchange="applyFilters()" style="background:#0d2418;color:#fff;border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;">
+    <option value="">All Plans</option>
+    <option value="onetime">One-Time</option>
+    <option value="monthly">Monthly</option>
+    <option value="annual">Annual</option>
+  </select>
+  <select id="filter-status" onchange="applyFilters()" style="background:#0d2418;color:#fff;border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;">
+    <option value="">All Statuses</option>
+    <option value="pending">Pending</option>
+    <option value="done">Completed</option>
+  </select>
+  <select id="filter-water" onchange="applyFilters()" style="background:#0d2418;color:#fff;border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;">
+    <option value="">All Water Access</option>
+    <option value="yes">Has Spigot</option>
+    <option value="no">No Water</option>
+    <option value="unsure">Unsure</option>
+  </select>
+  <button onclick="clearFilters()" style="background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Clear</button>
+  <div style="margin-left:auto;display:flex;gap:8px;">
+    <button onclick="optimizeRoute()" style="background:#1a3a2a;color:#00C896;border:1px solid rgba(0,200,150,0.3);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🗺 Optimize Route</button>
+    <div style="position:relative;">
+      <button onclick="toggleExportMenu()" style="background:#00C896;color:#000;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">↓ Export</button>
+      <div id="export-menu" style="display:none;position:absolute;right:0;top:36px;background:#0d2418;border:1px solid rgba(0,200,150,0.2);border-radius:10px;padding:8px;z-index:100;min-width:160px;">
+        <div onclick="exportCSV()" style="padding:8px 12px;cursor:pointer;font-size:13px;border-radius:6px;color:#fff;" onmouseover="this.style.background='#1a3a2a'" onmouseout="this.style.background='transparent'">📄 Export CSV</div>
+        <div onclick="exportExcel()" style="padding:8px 12px;cursor:pointer;font-size:13px;border-radius:6px;color:#fff;" onmouseover="this.style.background='#1a3a2a'" onmouseout="this.style.background='transparent'">📊 Export Excel</div>
+        <div onclick="exportPDF()" style="padding:8px 12px;cursor:pointer;font-size:13px;border-radius:6px;color:#fff;" onmouseover="this.style.background='#1a3a2a'" onmouseout="this.style.background='transparent'">📋 Export PDF</div>
+        <div onclick="exportRoutingCSV()" style="padding:8px 12px;cursor:pointer;font-size:13px;border-radius:6px;color:#00C896;" onmouseover="this.style.background='#1a3a2a'" onmouseout="this.style.background='transparent'">🗺 Export for GPS App</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="main">
   <div class="bookings-panel" id="bookings-panel">
     <div class="loading"><div class="loading-spinner"></div>Loading bookings...</div>
@@ -235,6 +274,7 @@ async function loadBookings() {
     allBookings = data;
     updateStats();
     updateCounts();
+    populateMonthFilter();
     renderBookings();
   } catch(e) {
     document.getElementById('bookings-panel').innerHTML = '<div class="empty">Failed to load bookings. Check connection.</div>';
@@ -269,7 +309,7 @@ function switchTab(tab) {
 }
 
 function renderBookings() {
-  const filtered = currentTab === 'all' ? allBookings : allBookings.filter(b => b.service_day === currentTab);
+  const filtered = getFilteredBookings();
   const panel = document.getElementById('bookings-panel');
 
   if (!filtered.length) {
@@ -351,6 +391,223 @@ async function markDone(id, currentlyDone) {
   const newStatus = currentlyDone ? 'pending' : 'done';
   await supabaseClient.from('bookings').update({ status: newStatus }).eq('id', id);
   await loadBookings();
+}
+
+// ── FILTERS ──
+let activeFilters = { month: '', plan: '', status: '', water: '' };
+
+function populateMonthFilter() {
+  const months = [...new Set(allBookings.map(b => b.start_month).filter(Boolean))].sort();
+  const sel = document.getElementById('filter-month');
+  sel.innerHTML = '<option value="">All Months</option>';
+  months.forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`);
+}
+
+function applyFilters() {
+  activeFilters.month  = document.getElementById('filter-month').value;
+  activeFilters.plan   = document.getElementById('filter-plan').value;
+  activeFilters.status = document.getElementById('filter-status').value;
+  activeFilters.water  = document.getElementById('filter-water').value;
+  renderBookings();
+}
+
+function clearFilters() {
+  document.getElementById('filter-month').value  = '';
+  document.getElementById('filter-plan').value   = '';
+  document.getElementById('filter-status').value = '';
+  document.getElementById('filter-water').value  = '';
+  activeFilters = { month: '', plan: '', status: '', water: '' };
+  renderBookings();
+}
+
+function getFilteredBookings() {
+  let list = currentTab === 'all' ? allBookings : allBookings.filter(b => b.service_day === currentTab);
+  if (activeFilters.month)  list = list.filter(b => b.start_month === activeFilters.month);
+  if (activeFilters.plan)   list = list.filter(b => b.plan === activeFilters.plan);
+  if (activeFilters.status) list = list.filter(b => b.status === activeFilters.status);
+  if (activeFilters.water)  list = list.filter(b => b.water_access === activeFilters.water);
+  return list;
+}
+
+// ── ROUTE OPTIMIZATION (nearest neighbor) ──
+async function optimizeRoute() {
+  const filtered = getFilteredBookings();
+  if (filtered.length < 2) { alert('Need at least 2 bookings to optimize route.'); return; }
+
+  const btn = document.querySelector('button[onclick="optimizeRoute()"]');
+  btn.textContent = '⏳ Optimizing...';
+  btn.disabled = true;
+
+  const geocoded = [];
+  for (const b of filtered) {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(b.address + ' ' + b.zip + ' Queens NY')}&format=json&limit=1`);
+      const data = await res.json();
+      if (data[0]) {
+        geocoded.push({ ...b, lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
+      }
+    } catch(e) {}
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  if (!geocoded.length) { alert('Could not geocode addresses.'); btn.textContent = '🗺 Optimize Route'; btn.disabled = false; return; }
+
+  const optimized = [];
+  const remaining = [...geocoded];
+  let current = remaining.splice(0, 1)[0];
+  optimized.push(current);
+
+  while (remaining.length) {
+    let nearestIdx = 0;
+    let nearestDist = Infinity;
+    remaining.forEach((b, i) => {
+      const dist = Math.sqrt(Math.pow(b.lat - current.lat, 2) + Math.pow(b.lng - current.lng, 2));
+      if (dist < nearestDist) { nearestDist = dist; nearestIdx = i; }
+    });
+    current = remaining.splice(nearestIdx, 1)[0];
+    optimized.push(current);
+  }
+
+  const panel = document.getElementById('bookings-panel');
+  const dayLabel = currentTab === 'all' ? 'Optimized Route' : currentTab + 's Optimized Route';
+  let html = `<div class="day-label" style="color:#ffc800;">⚡ ${dayLabel} (${optimized.length} stops)</div>`;
+  html += `<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px;padding:8px 12px;background:rgba(255,200,0,0.05);border-radius:8px;border:1px solid rgba(255,200,0,0.1);">Route optimized for minimum driving distance. Follow stops in order 1 → ${optimized.length}.</div>`;
+
+  optimized.forEach((b, i) => {
+    const isDone = b.status === 'done';
+    const planLabel = b.plan === 'onetime' ? 'One-Time' : b.plan === 'monthly' ? 'Monthly' : 'Annual';
+    const price = b.estimated_price ? '$' + b.estimated_price : '—';
+    html += `
+    <div class="booking-card ${isDone ? 'done' : ''}" id="card-${b.id}">
+      <div class="card-top">
+        <div class="card-num" style="background:#ffc800;color:#000;">${i+1}</div>
+        <div class="card-info">
+          <div class="card-name">${b.name || '—'}</div>
+          <div class="card-address">${b.address || '—'}, ${b.zip || ''}</div>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.35);">${b.start_month || ''}</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge badge-plan">${planLabel}</span>
+        <span class="badge badge-bins">${b.bins || 1} bin${b.bins > 1 ? 's' : ''}</span>
+        <span class="badge badge-price">${price}</span>
+      </div>
+      <div class="card-actions">
+        <a class="action-btn btn-nav" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((b.address||'') + ' ' + (b.zip||'') + ' Queens NY')}" target="_blank">🗺 Navigate</a>
+        <a class="action-btn btn-call" href="tel:${b.phone}">📞 Call</a>
+        <button class="action-btn btn-done ${isDone ? 'completed' : ''}" onclick="markDone(${b.id}, ${isDone})">${isDone ? '✅ Done' : 'Mark Done'}</button>
+      </div>
+    </div>`;
+  });
+
+  const waypoints = optimized.slice(1, -1).map(b => encodeURIComponent(b.address + ' ' + b.zip + ' Queens NY')).join('|');
+  const origin = encodeURIComponent(optimized[0].address + ' ' + optimized[0].zip + ' Queens NY');
+  const destination = encodeURIComponent(optimized[optimized.length-1].address + ' ' + optimized[optimized.length-1].zip + ' Queens NY');
+  const gmapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}&travelmode=driving`;
+  html += `<a href="${gmapsUrl}" target="_blank" style="display:block;text-align:center;padding:14px;background:#ffc800;color:#000;font-weight:800;border-radius:12px;text-decoration:none;margin-top:8px;font-family:'DM Sans',sans-serif;">🗺 Open Full Route in Google Maps</a>`;
+
+  panel.innerHTML = html;
+  updateMap(optimized);
+  btn.textContent = '🗺 Optimize Route';
+  btn.disabled = false;
+}
+
+// ── EXPORTS ──
+function toggleExportMenu() {
+  const menu = document.getElementById('export-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('[onclick="toggleExportMenu()"]') && !e.target.closest('#export-menu')) {
+    const menu = document.getElementById('export-menu');
+    if (menu) menu.style.display = 'none';
+  }
+});
+
+function getExportData() {
+  return getFilteredBookings().map((b, i) => ({
+    '#': i + 1,
+    'Name': b.name || '',
+    'Phone': b.phone || '',
+    'Email': b.email || '',
+    'Address': b.address || '',
+    'ZIP': b.zip || '',
+    'Service Day': b.service_day || '',
+    'Plan': b.plan || '',
+    'Bins': b.bins || 1,
+    'Start Month': b.start_month || '',
+    'Clean Week': b.clean_week || '',
+    'Water Access': b.water_access || '',
+    'Status': b.status || 'pending',
+    'Est. Price': b.estimated_price || 0,
+    'Source': b.source || '',
+    'Notes': b.notes || '',
+    'Booked At': b.created_at ? new Date(b.created_at).toLocaleDateString() : ''
+  }));
+}
+
+function exportCSV() {
+  const data = getExportData();
+  if (!data.length) { alert('No bookings to export.'); return; }
+  const headers = Object.keys(data[0]);
+  const rows = data.map(r => headers.map(h => `"${String(r[h]).replace(/"/g, '""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `freshbin-bookings-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  document.getElementById('export-menu').style.display = 'none';
+}
+
+function exportExcel() {
+  const data = getExportData();
+  if (!data.length) { alert('No bookings to export.'); return; }
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Bookings');
+  XLSX.writeFile(wb, `freshbin-bookings-${new Date().toISOString().slice(0,10)}.xlsx`);
+  document.getElementById('export-menu').style.display = 'none';
+}
+
+function exportPDF() {
+  const data = getExportData();
+  if (!data.length) { alert('No bookings to export.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape' });
+  doc.setFontSize(14);
+  doc.text('FreshBin NYC — Bookings Export', 14, 15);
+  doc.setFontSize(9);
+  doc.text(`Generated: ${new Date().toLocaleDateString()} | ${data.length} bookings`, 14, 22);
+  const cols = ['#','Name','Phone','Address','ZIP','Service Day','Plan','Bins','Start Month','Status','Est. Price'];
+  const rows = data.map(r => [r['#'],r['Name'],r['Phone'],r['Address'],r['ZIP'],r['Service Day'],r['Plan'],r['Bins'],r['Start Month'],r['Status'],'$'+r['Est. Price']]);
+  doc.autoTable({ head: [cols], body: rows, startY: 27, styles: { fontSize: 7 }, headStyles: { fillColor: [0, 100, 75] } });
+  doc.save(`freshbin-bookings-${new Date().toISOString().slice(0,10)}.pdf`);
+  document.getElementById('export-menu').style.display = 'none';
+}
+
+async function exportRoutingCSV() {
+  const data = getFilteredBookings();
+  if (!data.length) { alert('No bookings to export.'); return; }
+
+  const rows = [['Stop','Name','Address','ZIP','Full Address','Phone','Plan','Bins','Service Day','Notes','Latitude','Longitude']];
+
+  for (let i = 0; i < data.length; i++) {
+    const b = data[i];
+    let lat = '', lng = '';
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(b.address + ' ' + b.zip + ' Queens NY')}&format=json&limit=1`);
+      const geo = await res.json();
+      if (geo[0]) { lat = geo[0].lat; lng = geo[0].lon; }
+    } catch(e) {}
+    await new Promise(r => setTimeout(r, 300));
+    rows.push([i+1, b.name, b.address, b.zip, `${b.address}, ${b.zip}, Queens, NY`, b.phone, b.plan, b.bins, b.service_day, b.notes || '', lat, lng]);
+  }
+
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `freshbin-routing-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  document.getElementById('export-menu').style.display = 'none';
 }
 </script>
 </body>
