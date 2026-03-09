@@ -2254,6 +2254,18 @@
           <div id="schedule-note" style="display:none; margin-top:8px; padding:10px 14px; background:rgba(0,200,150,0.08); border:1px solid rgba(0,200,150,0.2); border-radius:8px; font-size:12px; color:rgba(255,255,255,0.6); line-height:1.6;"></div>
         </div>
 
+        <!-- Water access -->
+        <div>
+          <label style="display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">Outdoor Water Connection *</label>
+          <p style="font-size:11px; color:rgba(255,255,255,0.4); margin:2px 0 6px 0;">We connect to your outdoor spigot to clean your bins — no mess inside your home</p>
+          <select id="f-water-access" required style="width:100%; padding:12px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:rgba(255,255,255,0.7); font-size:14px; font-family:'DM Sans',sans-serif; outline:none;">
+            <option value="">Do you have an outdoor water spigot?</option>
+            <option value="yes">Yes, I have an outdoor spigot</option>
+            <option value="no">No, I don't have one</option>
+            <option value="unsure">I'm not sure</option>
+          </select>
+        </div>
+
         <!-- How did you hear -->
         <div>
           <label style="display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">How did you hear about us?</label>
@@ -2485,6 +2497,8 @@
     return;
   }
 
+  var waterAccess = document.getElementById('f-water-access').value;
+
   var binTypes = [];
   document.querySelectorAll('#booking-modal input[type="checkbox"]:checked').forEach(function(cb) {
     binTypes.push(cb.value);
@@ -2506,6 +2520,13 @@
   var notes = document.getElementById('f-notes').value.trim();
 
   var btn = document.querySelector('#booking-modal button[onclick="submitBooking()"]');
+  if (waterAccess === 'no') {
+    alert('Sorry, we currently require an outdoor water connection to service your bins. We\'re working on expanding to all property types soon!');
+    btn.textContent = 'Confirm Booking →';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+    return;
+  }
   btn.textContent = 'Submitting...';
   btn.style.opacity = '0.6';
   btn.disabled = true;
@@ -2533,6 +2554,7 @@
         clean_week: cleanWeek,
         source: source,
         notes: notes,
+        water_access: waterAccess,
         status: 'pending',
         estimated_price: estimatedPrice
       })
