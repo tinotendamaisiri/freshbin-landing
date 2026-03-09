@@ -2531,6 +2531,36 @@
   btn.style.opacity = '0.6';
   btn.disabled = true;
 
+  var checkPhone = await fetch('https://fuyvrepazocbkufywexu.supabase.co/rest/v1/bookings?phone=eq.' + encodeURIComponent(phone) + '&select=id', {
+    headers: {
+      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXZyZXBhem9jYmt1Znl3ZXh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MzgzNzMsImV4cCI6MjA4ODUxNDM3M30.70d9VKNHI1xGVVJjKF4BvRpQa1fFq6a1cH3IRzC2FRE',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXZyZXBhem9jYmt1Znl3ZXh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MzgzNzMsImV4cCI6MjA4ODUxNDM3M30.70d9VKNHI1xGVVJjKF4BvRpQa1fFq6a1cH3IRzC2FRE'
+    }
+  });
+  var phoneData = await checkPhone.json();
+  if (phoneData.length > 0) {
+    alert('A booking already exists for this phone number. Call us at (347) 953-8998 to manage your booking.');
+    btn.textContent = 'Confirm Booking →';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+    return;
+  }
+
+  var checkAddress = await fetch('https://fuyvrepazocbkufywexu.supabase.co/rest/v1/bookings?address=ilike.' + encodeURIComponent(address) + '&select=id', {
+    headers: {
+      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXZyZXBhem9jYmt1Znl3ZXh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MzgzNzMsImV4cCI6MjA4ODUxNDM3M30.70d9VKNHI1xGVVJjKF4BvRpQa1fFq6a1cH3IRzC2FRE',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXZyZXBhem9jYmt1Znl3ZXh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MzgzNzMsImV4cCI6MjA4ODUxNDM3M30.70d9VKNHI1xGVVJjKF4BvRpQa1fFq6a1cH3IRzC2FRE'
+    }
+  });
+  var addressData = await checkAddress.json();
+  if (addressData.length > 0) {
+    alert('A booking already exists for this address. Call us at (347) 953-8998 to manage your booking.');
+    btn.textContent = 'Confirm Booking →';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+    return;
+  }
+
   try {
     var response = await fetch('https://fuyvrepazocbkufywexu.supabase.co/rest/v1/bookings', {
       method: 'POST',
