@@ -157,9 +157,15 @@ async function adminLogin() {
   btn.textContent = 'Signing in...';
   btn.disabled = true;
 
+  console.log('Attempting login with:', email);
+
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
+  console.log('Login result:', data, error);
+
   if (error) {
+    console.error('Auth error:', error.message);
+    document.getElementById('auth-error').textContent = error.message;
     document.getElementById('auth-error').style.display = 'block';
     btn.textContent = 'Enter Dashboard';
     btn.disabled = false;
