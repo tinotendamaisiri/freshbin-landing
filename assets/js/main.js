@@ -142,46 +142,6 @@
     }
   }
 
-  // Populate next 4 months in the dropdown
-  (function() {
-    var select = document.getElementById('f-date');
-    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    var now = new Date();
-    for (var i = 0; i < 4; i++) {
-      var d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-      var val = d.getFullYear() + '-' + (d.getMonth()+1);
-      var label = months[d.getMonth()] + ' ' + d.getFullYear();
-      var opt = document.createElement('option');
-      opt.value = val;
-      opt.textContent = label;
-      select.appendChild(opt);
-    }
-  })();
-
-  function getLastWeekDates(year, month) {
-    var lastDay = new Date(year, month, 0);
-    var lastMonday = new Date(lastDay);
-    lastMonday.setDate(lastDay.getDate() - ((lastDay.getDay() + 6) % 7));
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var start = lastMonday.getDate() + ' ' + months[lastMonday.getMonth()];
-    var end = new Date(lastMonday);
-    end.setDate(end.getDate() + 5);
-    var endStr = end.getDate() + ' ' + months[end.getMonth()];
-    return start + ' – ' + endStr;
-  }
-
-  function updateScheduleNote() {
-    var val = document.getElementById('f-date').value;
-    var noteEl = document.getElementById('schedule-note');
-    if (!val) { noteEl.style.display = 'none'; return; }
-    var parts = val.split('-');
-    var year = parseInt(parts[0]);
-    var month = parseInt(parts[1]);
-    var dates = getLastWeekDates(year, month);
-    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    noteEl.style.display = 'block';
-    noteEl.innerHTML = '📅 <strong style="color:#00C896;">Your clean week: ' + dates + '</strong><br>We clean the last week of every month. We\'ll text you 3 days before with your exact day and time window.';
-  }
 
   async function submitBooking() {
   var name = document.getElementById('f-name').value.trim();
@@ -189,9 +149,8 @@
   var email = document.getElementById('f-email').value.trim();
   var address = document.getElementById('f-address').value.trim();
   var zip = document.getElementById('f-zip').value.trim();
-  var date = document.getElementById('f-date').value;
 
-  if (!name || !phone || !email || !address || !zip || !date) {
+  if (!name || !phone || !email || !address || !zip) {
     alert('Please fill in all required fields.');
     return;
   }
@@ -206,17 +165,6 @@
   }
 
   var waterAccess = document.getElementById('f-water-access').value;
-
-  var binTypes = [];
-  document.querySelectorAll('#booking-modal input[type="checkbox"]:checked').forEach(function(cb) {
-    binTypes.push(cb.value);
-  });
-
-  var monthSelect = document.getElementById('f-date');
-  var monthLabel = monthSelect.options[monthSelect.selectedIndex].text;
-
-  var cleanWeekEl = document.getElementById('schedule-note');
-  var cleanWeek = cleanWeekEl ? cleanWeekEl.textContent.replace('📅', '').trim() : '';
 
   var extra = selectedBins > 4 ? (selectedBins - 4) * 10 : 0;
   var estimatedPrice = 30 + extra;
@@ -285,9 +233,6 @@
         service_day: serviceDay,
         plan: selectedPlan,
         bins: selectedBins,
-        bin_types: binTypes,
-        start_month: monthLabel,
-        clean_week: cleanWeek,
         source: source,
         notes: notes,
         water_access: waterAccess,
