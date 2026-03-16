@@ -58,40 +58,17 @@
   }
 
   function updatePrice() {
-    var base = selectedPlan === 'onetime' ? 30 : selectedPlan === 'monthly' ? 22 : 180;
     var extra = selectedBins > 4 ? (selectedBins - 4) * 10 : 0;
-    var total = base + extra;
-    var suffix = selectedPlan === 'monthly' ? '/mo' : selectedPlan === 'annual' ? '/yr' : '';
-    var planLabel = selectedPlan === 'onetime' ? 'One-time' : selectedPlan === 'monthly' ? 'Monthly' : 'Annual';
-    document.getElementById('price-total').textContent = '$' + total.toFixed(2) + suffix;
-    var breakdown = planLabel + ': $' + base + ' (up to 4 bins)';
+    var total = 30 + extra;
+    document.getElementById('price-total').textContent = '$' + total.toFixed(2);
+    var breakdown = 'One-time: $30 (up to 4 bins)';
     if (selectedBins > 4) breakdown += ' + $' + extra + ' (' + (selectedBins - 4) + ' extra bin' + (selectedBins > 5 ? 's' : '') + ')';
     document.getElementById('price-breakdown').textContent = breakdown;
   }
 
   function selectPlan(plan) {
     selectedPlan = plan;
-    ['onetime','monthly','annual'].forEach(function(p) {
-      var el = document.getElementById('plan-' + p);
-      if (p === plan) {
-        el.style.border = '1px solid rgba(0,200,150,0.6)';
-        el.style.background = 'rgba(0,200,150,0.1)';
-        el.querySelector('div').style.color = '#00C896';
-      } else {
-        el.style.border = '1px solid rgba(255,255,255,0.12)';
-        el.style.background = 'rgba(255,255,255,0.04)';
-        el.querySelector('div').style.color = 'rgba(255,255,255,0.7)';
-      }
-    });
     updatePrice();
-    var zip = document.getElementById('f-zip') ? document.getElementById('f-zip').value : '';
-    var modalDayEl = document.getElementById('modal-service-day');
-    if (modalDayEl && zip) {
-      var day = zipDays[zip];
-      if (day) {
-        modalDayEl.textContent = plan === 'onetime' ? day : day + 's';
-      }
-    }
   }
 
   function selectBins(n) {
@@ -241,9 +218,8 @@
   var cleanWeekEl = document.getElementById('schedule-note');
   var cleanWeek = cleanWeekEl ? cleanWeekEl.textContent.replace('📅', '').trim() : '';
 
-  var base = selectedPlan === 'onetime' ? 30 : selectedPlan === 'monthly' ? 22 : 180;
   var extra = selectedBins > 4 ? (selectedBins - 4) * 10 : 0;
-  var estimatedPrice = base + extra;
+  var estimatedPrice = 30 + extra;
 
   var serviceDay = zipDays[zip] || 'TBC';
 
